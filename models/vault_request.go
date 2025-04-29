@@ -25,6 +25,7 @@ type VaultMemberResponse struct {
 type CreateVaultRequest struct {
 	EncryptedVaultMetadata EncryptedKeyDto `json:"e_vaultmetadata" validate:"required"`
 	ESVK_PubK_User         string          `json:"esvk_pubK_user" validate:"required"`
+	PersonalVault          *bool           `json:"personalVault"`
 }
 
 type CreateVaultMemberRequest struct {

@@ -25,6 +25,10 @@ func CreateVault(userID string, req *models.CreateVaultRequest) (*models.VaultRe
 		return nil, errors.NewAppError(403, "Only admin can create vault")
 	}
 
+	if req.PersonalVault != nil && *req.PersonalVault {
+		return CreatePersonalVault(userID, user.OrgID.Hex(), req)
+	}
+
 	vaultID := primitive.NewObjectID()
 
 	eskvBytes, err := utils.Base64ToBytes(req.ESVK_PubK_User)
@@ -72,6 +76,93 @@ func CreateVault(userID string, req *models.CreateVaultRequest) (*models.VaultRe
 	vaultResponse := utils.FacVaultResponse(&vault, user.Email, &vaultMember)
 
 	return vaultResponse, nil
+}
+
+func CreatePersonalVault(userID, orgID string, req *models.CreateVaultRequest) (*models.VaultResponse, error) {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid userID")
+	}
+
+	_, err = repository.FindVaultByID(userObjID)
+	if err == nil {
+		return nil, errors.NewAppError(403, "User already has a personal vault")
+	}
+
+	user, err := repository.FindUserByID(userObjID)
+	if err != nil {
+		return nil, errors.NewAppError(404, "User not found")
+	}
+
+	orgObjID, err := primitive.ObjectIDFromHex(orgID)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid orgID")
+	}
+
+	eskvBytes, err := utils.Base64ToBytes(req.ESVK_PubK_User)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid eskv")
+	}
+
+	evm_cyphertext, err := utils.Base64ToBytes(req.EncryptedVaultMetadata.Ciphertext)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid EncryptedVaultMetadata")
+	}
+	evm_nonce, err := utils.Base64ToBytes(req.EncryptedVaultMetadata.Nonce)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid EncryptedVaultMetadata")
+	}
+
+	encryptedVaultMetadata := models.EncryptedKey{
+		Ciphertext: evm_cyphertext,
+		Nonce:      evm_nonce,
+	}
+
+	vault := models.Vault{
+		ID:                     userObjID,
+		OrgID:                  orgObjID,
+		EncryptedVaultMetadata: encryptedVaultMetadata,
+		PersonalVault:          true,
+		CreatedBy:              userObjID,
+		UpdatedAt:              primitive.NewDateTimeFromTime(time.Now()),
+		CreatedAt:              primitive.NewDateTimeFromTime(time.Now()),
+	}
+	vaultMember := models.VaultMember{
+		ID:             primitive.NewObjectID(),
+		VaultID:        userObjID,
+		OrgID:          orgObjID,
+		UserID:         userObjID,
+		ESVK_PubK_User: eskvBytes,
+		Permission:     models.ADMIN,
+		AddedBy:        userObjID,
+		AddAt:          primitive.NewDateTimeFromTime(time.Now()),
+	}
+
+	repository.CreateVault(&vault)
+	repository.AddVaultMember(&vaultMember)
+
+	encryptedVaultMetadataRes := utils.FacEncryptedKeyDto(evm_cyphertext, evm_nonce)
+	vaultResponse := models.VaultResponse{
+		ID:                     vault.ID.Hex(),
+		OrgID:                  vault.OrgID.Hex(),
+		EncryptedVaultMetadata: encryptedVaultMetadataRes,
+		MyMembership: models.VaultMemberResponse{
+			ID:             vaultMember.ID.Hex(),
+			VaultID:        vaultMember.VaultID.Hex(),
+			UserID:         vaultMember.UserID.Hex(),
+			Email:          user.Email,
+			ESVK_PubK_User: utils.BytesToBase64(vaultMember.ESVK_PubK_User),
+			Permission:     string(vaultMember.Permission),
+			AddedBy:        vaultMember.AddedBy.Hex(),
+			AddAt:          vaultMember.AddAt.Time().Format(time.RFC3339),
+		},
+		PersonalVault: true,
+		CreatedBy:     vault.CreatedBy.Hex(),
+		UpdatedAt:     vault.UpdatedAt.Time().Format(time.RFC3339),
+		CreatedAt:     vault.CreatedAt.Time().Format(time.RFC3339),
+	}
+
+	return &vaultResponse, nil
 }
 
 func FindMyAllVaultsByOrgID(userID, orgID string) ([]models.VaultWithMemberInfo, error) {
