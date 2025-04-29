@@ -1,0 +1,186 @@
+package controllers
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"lembrago.com/lembrago/cache"
+	"lembrago.com/lembrago/models"
+	"lembrago.com/lembrago/services"
+	"lembrago.com/lembrago/utils"
+)
+
+func GetLoginInfoFromUser(c *gin.Context) {
+	email := c.Query("email")
+
+	loginInfo, err := services.GetLoginInfoFromUser(email)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, loginInfo)
+}
+
+func UserLogin(c *gin.Context) {
+	var req models.UserLoginComparison
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := services.UserLogin(&req)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, user)
+}
+
+func UserRegister(c *gin.Context) {
+	var req models.CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	orgIDRaw, exists := c.Get("orgID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	orgID, ok := orgIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (orgID type)"})
+		return
+	}
+
+	roleRaw, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	role, ok := roleRaw.(models.UserRole)
+	fmt.Println(role)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (role type)"})
+		return
+	}
+
+	emailRaw, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	email, ok := emailRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (email type)"})
+		return
+	}
+
+	exists, err = cache.Exists(req.Code)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid code"})
+		return
+	}
+
+	userRole := models.UserRole(role)
+	err = services.UserRegister(&req, orgID, email, userRole)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	cache.Delete(req.Code)
+
+	c.Status(http.StatusCreated)
+}
+
+func GetUsers(c *gin.Context) {
+	id := c.Query("userId")
+
+	orgIDRaw, exists := c.Get("orgID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	orgID, ok := orgIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (orgID type)"})
+		return
+	}
+
+	roleRaw, exists := c.Get("role")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	role, ok := roleRaw.(models.UserRole)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (role type)"})
+		return
+	}
+	if role != models.RoleAdmin {
+		c.AbortWithStatusJSON(403, gin.H{"error": "Invalid Permission"})
+		return
+	}
+
+	if id != "" {
+		user, err := services.GetUserByID(id)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+		if user.OrgID != orgID {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		c.JSON(200, user)
+		return
+	} else {
+		users, err := services.GetUsersByOrgID(orgID)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+
+		c.JSON(200, users)
+	}
+}
+
+func GetAllMembersFromTheVault(c *gin.Context) {
+	vaultId := c.Query("vaultId")
+
+	userIDRaw, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (userID type)"})
+		return
+	}
+
+	members, err := services.GetAllMembersFromTheVault(vaultId, userID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, members)
+}

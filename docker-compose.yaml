@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: .
+    container_name: lembrago
+    ports:
+      - "7888:7888"
+    depends_on:
+      - mongodb
+    networks:
+      - default_network
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: lembrago-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/dbs
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: jomasinas
+      MONGO_INITDB_ROOT_PASSWORD: 97005209
+    networks:
+      - default_network
+
+  redisdb:
+    image: redis
+    container_name: lembrago-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass 97005209
+    networks:
+      - default_network
+
+volumes:
+  mongo-data:
+
+networks:
+  default_network:
