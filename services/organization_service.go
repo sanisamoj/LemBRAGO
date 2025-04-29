@@ -137,7 +137,7 @@ func InviteUser(adminID, orgID, email string, role models.UserRole) (string, err
 	}
 
 	user, err := repository.FindUserByEmailOrgID(email, orgIbjID)
-	if user != nil {
+	if err == nil && user != nil {
 		return "", errors.NewAppError(403, "User already exists")
 	}
 
@@ -156,6 +156,7 @@ func InviteUser(adminID, orgID, email string, role models.UserRole) (string, err
 		Organization: organization.Name,
 		ImgUrl:       organization.ImageUrl,
 		UserEmail:    email,
+		UserRole:     string(role),
 	}
 
 	cache.SetStruct(code, &inviteCode)

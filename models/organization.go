@@ -24,10 +24,11 @@ type CreateOrganizationRequest struct {
 }
 
 type MinOrgWithTokenResponse struct {
-	Token  string `json:"token"`
-	Organization   string `json:"organization"`
-	ImgUrl string `json:"imageUrl"`
-	UserEmail string `json:"userEmail"`
+	Token        string `json:"token"`
+	Organization string `json:"organization"`
+	ImgUrl       string `json:"imageUrl"`
+	UserEmail    string `json:"email"`
+	UserRole     string `json:"role"`
 }
 
 type SubscriptionPlan string

@@ -18,7 +18,7 @@ type User struct {
 	SaltEk []byte `bson:"saltEk" json:"saltEk"` // salt_ek
 	Keys   Keys   `bson:"keys" json:"keys"`
 
-	Role   UserRole   `bson:"role"`
+	Role   UserRole   `bson:"role", json:"role"`
 	Status UserStatus `bson:"status"`
 
 	CreatedAt primitive.DateTime `bson:"createdAt" json:"createdAt"`
