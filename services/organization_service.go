@@ -136,6 +136,11 @@ func InviteUser(adminID, orgID, email string, role models.UserRole) (string, err
 		return "", errors.NewAppError(400, "Invalid OrgID")
 	}
 
+	user, err := repository.FindUserByEmailOrgID(email, orgIbjID)
+	if user != nil {
+		return "", errors.NewAppError(403, "User already exists")
+	}
+
 	organization, err := repository.FindOrganizationByID(orgIbjID)
 	if err != nil {
 		return "", errors.NewAppError(403, "Invalid Permission")
@@ -150,6 +155,7 @@ func InviteUser(adminID, orgID, email string, role models.UserRole) (string, err
 		Token:        token,
 		Organization: organization.Name,
 		ImgUrl:       organization.ImageUrl,
+		UserEmail:    email,
 	}
 
 	cache.SetStruct(code, &inviteCode)

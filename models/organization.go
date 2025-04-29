@@ -27,6 +27,7 @@ type MinOrgWithTokenResponse struct {
 	Token  string `json:"token"`
 	Organization   string `json:"organization"`
 	ImgUrl string `json:"imageUrl"`
+	UserEmail string `json:"userEmail"`
 }
 
 type SubscriptionPlan string
