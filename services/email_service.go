@@ -30,7 +30,6 @@ func init() {
 }
 
 func SendEmail(to, subject, body string) error {
-	// "Hello <b>Bob</b> and <i>Cora</i>!"
 	m := gomail.NewMessage()
 	m.SetHeader("From", mailConfig.Email)
 	m.SetHeader("To", to)
