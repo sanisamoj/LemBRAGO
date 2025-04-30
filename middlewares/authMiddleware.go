@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"lembrago.com/lembrago/cache"
 	"lembrago.com/lembrago/models"
 	"lembrago.com/lembrago/utils"
 )
@@ -35,6 +36,12 @@ func AuthMiddleware(jwtSecretParam []byte, requiredRoles []models.UserRole) gin.
 			return
 		}
 		tokenString := parts[1]
+		tExist, err := cache.Get(tokenString)
+
+		if tExist != "" || err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token is not valid"})
+			return
+		}
 
 		claims := &utils.CustomClaims{}
 

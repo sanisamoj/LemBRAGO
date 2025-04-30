@@ -184,3 +184,10 @@ func GetAllMembersFromTheVault(c *gin.Context) {
 
 	c.JSON(200, members)
 }
+
+func Signout(g *gin.Context) {
+	authHeader := g.GetHeader("Authorization")
+	token, _ := utils.GetTokenInH(authHeader)
+	services.SignOut(token)
+	g.Status(200)
+}

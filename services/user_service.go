@@ -7,7 +7,9 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"lembrago.com/lembrago/cache"
 	"lembrago.com/lembrago/errors"
+	"lembrago.com/lembrago/internal/config"
 	"lembrago.com/lembrago/models"
 	"lembrago.com/lembrago/repository"
 	"lembrago.com/lembrago/utils"
@@ -219,4 +221,26 @@ func GetUsersByOrgID(orgID string) ([]models.MinimalUserInfoResponse, error) {
 	return minimalUsers, nil
 }
 
+func SignOut(token string) error {
+	claims, err := utils.GetTokenInfo(config.GetAppConfig().JWTSecret, token)
+	if err != nil {
+		return err
+	}
 
+	err = cache.Set(token, token)
+	if err != nil {
+		return err
+	}
+
+	ttl := time.Until(claims.ExpiresAt.Time)
+	if ttl < 0 {
+		return nil
+	}
+
+	_, err = cache.SetTTL(token, ttl)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

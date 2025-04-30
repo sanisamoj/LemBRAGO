@@ -70,6 +70,8 @@ func main() {
 		vaultRoute.DELETE("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeletePassword)
 	}
 
+	router.DELETE("/signout", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.Signout)
+
 	host := appConfig.Host
 	port := appConfig.Port
 	rt := fmt.Sprintf("%s:%s", host, port)
