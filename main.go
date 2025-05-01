@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,8 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
+
+	router.Use(middlewares.NewRateLimiterMiddleware(time.Second, 3))
 
 	adminOnly := []models.UserRole{models.RoleAdmin}
 	adminOrMember := []models.UserRole{models.RoleAdmin, models.RoleMember}

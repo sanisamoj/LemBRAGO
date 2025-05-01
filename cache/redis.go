@@ -15,6 +15,7 @@ import (
 
 var ctx = context.Background()
 var RedisClient *redis.Client
+var RedisOptions = &redis.Options{}
 
 func init() {
 	err := godotenv.Load()
@@ -26,11 +27,12 @@ func init() {
 	redisPort := os.Getenv("REDIS_PORT")
 	redisPassword := os.Getenv("REDIS_PASSWORD")
 
-	RedisClient = redis.NewClient(&redis.Options{
+	RedisOptions = &redis.Options{
 		Addr:     redisHost + ":" + redisPort,
-		Password: redisPassword, // no password set
-		DB:       0,             // use default DB
-	})
+		Password: redisPassword,
+		DB:       0,
+	}
+	RedisClient = redis.NewClient(RedisOptions)
 
 	_, err = RedisClient.Ping(ctx).Result()
 	if err != nil {
