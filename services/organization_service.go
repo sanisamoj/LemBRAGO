@@ -114,7 +114,6 @@ func CreateOrganization(request *models.CreateOrganizationRequest) (*models.Orga
 	}
 
 	go utils.SendWelcomeEmail(user.Email, user.Username)
-
 	return org, nil
 }
 

@@ -27,6 +27,9 @@ COPY --from=builder /app/app .
 # Copia o arquivo .env para o container
 COPY --from=builder /app/.env .
 
+COPY --from=builder /app/templates ./templates
+COPY --from=builder /app/uploads ./uploads
+
 # Expõe a porta usada pela aplicação (se aplicável)
 EXPOSE 7888
 

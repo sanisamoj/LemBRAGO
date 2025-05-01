@@ -9,6 +9,10 @@ services:
       - mongodb
     networks:
       - default_network
+    volumes:
+      # Mapeia a pasta ./uploads (no host, relativa ao docker-compose.yml)
+      # para a pasta /app/upload dentro do container 'backend'.
+      - ./uploads:/app/uploads
 
   mongodb:
     image: mongodb/mongodb-community-server:latest
