@@ -19,6 +19,7 @@
 ```.env
 HOST=0.0.0.0
 PORT=7888
+SELF_URL=
 
 MONGO_HOST=host.docker.internal
 MONGO_PORT=27017

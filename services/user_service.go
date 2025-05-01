@@ -181,6 +181,8 @@ func UserRegister(request *models.CreateUserRequest, orgID, email string, role m
 		}
 	}
 
+	go utils.SendWelcomeEmail(user.Email, user.Username)
+
 	return nil
 }
 
@@ -222,7 +224,7 @@ func GetUsersByOrgID(orgID string) ([]models.MinimalUserInfoResponse, error) {
 }
 
 func SignOut(token string) error {
-	claims, err := utils.GetTokenInfo(config.GetAppConfig().JWTSecret, token)
+	claims, err := utils.GetTokenInfo(config.GetServerConfig().JWTSecret, token)
 	if err != nil {
 		return err
 	}

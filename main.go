@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	appConfig := config.GetAppConfig()
+	appConfig := config.GetServerConfig()
 
 	router := gin.Default()
 	router.Use(handlers.ErrorHandler())

@@ -18,7 +18,7 @@ type CustomClaims struct {
 }
 
 func GenerateJWT(userID, orgID string, role models.UserRole) (string, error) {
-	appConfig := config.GetAppConfig()
+	appConfig := config.GetServerConfig()
 	expirationTime := time.Now().Add(29 * time.Hour)
 	claims := &CustomClaims{
 		UserID: userID,
@@ -41,7 +41,7 @@ func GenerateJWT(userID, orgID string, role models.UserRole) (string, error) {
 }
 
 func GenerateJWTUserCreation(userID, orgID string, role models.UserRole, email string) (string, error) {
-	appConfig := config.GetAppConfig()
+	appConfig := config.GetServerConfig()
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims := &CustomClaims{
 		UserID: userID,

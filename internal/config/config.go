@@ -8,12 +8,13 @@ import (
 	"lembrago.com/lembrago/database"
 )
 
-type AppConfig struct {
+type ServerConfig struct {
 	JWTSecret             []byte
 	JWTSecretUserCreation []byte
 	JWTIssuer             string
 	Host                  string
 	Port                  string
+	SELF_URL              string
 }
 
 func init() {
@@ -27,13 +28,14 @@ func init() {
 	}
 }
 
-func GetAppConfig() *AppConfig {
-	cfg := &AppConfig{
+func GetServerConfig() *ServerConfig {
+	cfg := &ServerConfig{
 		JWTSecret:             []byte(os.Getenv("JWT_SECRET")),
 		JWTSecretUserCreation: []byte(os.Getenv("JWT_SECRET_USER_CREATION")), // Carregue se usar
 		JWTIssuer:             os.Getenv("JWT_ISSUER"),
 		Host:                  os.Getenv("HOST"),
 		Port:                  os.Getenv("PORT"),
+		SELF_URL:              os.Getenv("SELF_URL"),
 	}
 
 	return cfg

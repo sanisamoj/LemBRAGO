@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo(a) ao {PROJECT_NAME}!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            /* Remova ou ajuste se não tiver logo */
+            /* padding-bottom: 20px; */
+            /* border-bottom: 1px solid #eeeeee; */
+        }
+        .header h1 {
+            color: #2a2a2a;
+            margin: 0;
+        }
+        /* Descomente se tiver um logo: */
+        /*
+        .logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+        */
+        .content p {
+            margin-bottom: 15px;
+            color: #555555;
+        }
+        .content strong {
+            color: #333333;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 20px 0;
+            background-color: #007bff; /* Cor primária do botão */
+            color: #ffffff !important; /* Importante para sobrescrever estilos de link padrão */
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #888888;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bem-vindo(a) ao {PROJECT_NAME}!</h1>
+        </div>
+
+        <div class="content">
+            <p>Olá {USER_NAME},</p>
+
+            <p>Estamos muito felizes em receber você no <strong>{PROJECT_NAME}</strong>! Prepare-se para gerenciar suas senhas e informações confidenciais com a máxima segurança e controle total.</p>
+
+            <p>Nosso sistema foi construído com uma arquitetura <strong>Zero-Knowledge</strong>. Isso significa que seus dados são criptografados e descriptografados diretamente no seu dispositivo, usando sua senha mestre. <strong>Somente você tem acesso às suas informações</strong> – nem mesmo nossa equipe pode visualizá-las.</p>
+
+            <p><strong>Ainda não realizou o download do nosso pequeno robusto sistema desktop? Comece agora a proteger suas informações:</strong></p>
+
+            <p style="text-align: center;">
+                <a href="{LEMBRAGO_URL}" class="cta-button">Ir para o LEMBRAGO</a>
+            </p>
+
+            <p>Se precisar de ajuda para começar ou tiver qualquer dúvida, não hesite em consultar nossa <a href="{FAQ_URL}">Central de Ajuda</a> ou entrar em contato com nosso suporte respondendo a este e-mail.</p>
+
+            <p>Obrigado por confiar no {PROJECT_NAME}!</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; {ACTUAL_YEAR} {PROJECT_NAME}. Todos os direitos reservados.</p>
+            </div>
+    </div>
+</body>
+</html>
