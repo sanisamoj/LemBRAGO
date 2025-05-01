@@ -59,6 +59,33 @@ func CreateVault(c *gin.Context) {
 	c.JSON(201, vault)
 }
 
+func RemoveVault(c *gin.Context) {
+	userIDRaw, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (userID type)"})
+		return
+	}
+
+	vaultID := c.Param("id")
+	if vaultID == "" {
+		c.JSON(400, gin.H{"error": "vaultId is required"})
+		return
+	}
+
+	err := services.RemoveVault(userID, vaultID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Vault, members and passwords removed successfully"})
+}
+
 func GetMyVaultsByOrgID(c *gin.Context) {
 	userIDRaw, exists := c.Get("userID")
 	if !exists {

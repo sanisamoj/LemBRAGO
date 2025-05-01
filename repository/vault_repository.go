@@ -60,6 +60,15 @@ func FindVaultByID(id primitive.ObjectID) (*models.Vault, error) {
 	return &vault, nil
 }
 
+func RemoveVaultByID(id primitive.ObjectID) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("vaults")
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	return err
+}
+
 func FindAllVaultsByUserOrgID(orgID primitive.ObjectID, userID primitive.ObjectID) ([]models.VaultWithMemberInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

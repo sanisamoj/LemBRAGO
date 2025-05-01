@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/base64"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -163,6 +164,68 @@ func CreatePersonalVault(userID, orgID string, req *models.CreateVaultRequest) (
 	}
 
 	return &vaultResponse, nil
+}
+
+func RemoveVault(userID, vaultID string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return errors.NewAppError(400, "Invalid userID")
+	}
+
+	vaultObjID, err := primitive.ObjectIDFromHex(vaultID)
+	if err != nil {
+		return errors.NewAppError(400, "Invalid vaultID")
+	}
+
+	vault, err := repository.FindVaultByID(vaultObjID)
+	if err != nil {
+		return errors.NewAppError(404, "Vault not found")
+	}
+
+	vaultMem, err := repository.FindMemberByUserVaultID(vaultObjID, userObjID)
+	if err != nil {
+		return errors.NewAppError(403, "Vault member not found")
+	}
+
+	if vault.CreatedBy != userObjID || vaultMem.Permission != models.ADMIN {
+		return errors.NewAppError(403, "You are not allowed to remove this vault")
+	}
+
+	err = repository.RemoveVaultByID(vaultObjID)
+	if err != nil {
+		return errors.NewAppError(500, "Failed to remove vault")
+	}
+
+	go removeVaultData(vaultObjID)
+	return nil
+}
+
+func removeVaultData(vaultID primitive.ObjectID) error {
+	members, err := repository.FindAllVaultMembersByVaultID(vaultID)
+	if err != nil {
+		return fmt.Errorf("Failed to find vault members: %v", err)
+	}
+
+	for _, member := range members {
+		err = repository.DeleteVaultMember(member.ID)
+		if err != nil {
+			return fmt.Errorf("Failed to remove vault member: %v", err)
+		}
+	}
+
+	passwords, err := repository.FindAllPasswordsByVaultID(vaultID)
+	if err != nil {
+		return fmt.Errorf("Failed to find passwords: %v", err)
+	}
+
+	for _, password := range passwords {
+		err = repository.RemovePasswordFromVault(password.ID)
+		if err != nil {
+			return fmt.Errorf("Failed to remove password: %v", err)
+		}
+	}
+
+	return nil
 }
 
 func FindMyAllVaultsByOrgID(userID, orgID string) ([]models.VaultWithMemberInfo, error) {
