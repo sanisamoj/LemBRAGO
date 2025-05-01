@@ -11,10 +11,42 @@ import (
 	"lembrago.com/lembrago/utils"
 )
 
-func GetLoginInfoFromUser(c *gin.Context) {
-	email := c.Query("email")
+func SendAuthCode(c *gin.Context) {
+	var req models.AuthCodeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
-	loginInfo, err := services.GetLoginInfoFromUser(email)
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = services.SendAuthCode(req.Email)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Code sent successfully"})
+}
+
+func GetLoginInfoFromUser(c *gin.Context) {
+	var req models.AuthCodeSendRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	loginInfo, err := services.GetLoginInfoFromUser(req.Email, req.Code)
 	if err != nil {
 		c.Error(err)
 		return

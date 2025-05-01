@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código de Autenticação - {PROJECT_NAME}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            color: #2a2a2a;
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .content p {
+            margin-bottom: 15px;
+            color: #555555;
+        }
+        .content strong {
+            color: #333333;
+        }
+        .auth-code {
+            text-align: center;
+            font-size: 2.2em; 
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin: 30px 0;
+            padding: 20px 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            color: #0d6efd;
+            border: 1px solid #dee2e6;
+            font-family: 'Courier New', Courier, monospace; 
+        }
+        .security-note {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eeeeee;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #888888;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+         .cta-button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 20px 0;
+            background-color: #007bff;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Código de Autenticação</h1>
+        </div>
+
+        <div class="content">
+            <p>Olá,</p>
+
+            <p>Use o código abaixo para verificar sua identidade e acessar seus ambientes no <strong>{PROJECT_NAME}</strong>.</p>
+            <p>Seu código de 6 dígitos é:</p>
+
+            <div class="auth-code">{AUTH_CODE}</div>
+
+            <p>Insira este código na tela de verificação do {PROJECT_NAME} para continuar.</p>
+
+            <div class="security-note">
+                <p>Este código expirará em breve (geralmente em poucos minutos). Por segurança, nunca compartilhe este código com ninguém.</p>
+                <p>Se você não solicitou este código, pode ignorar este e-mail com segurança. Se tiver alguma preocupação, entre em contato com o suporte através do nosso site.</p>
+            </div>
+
+             <p>Precisa de ajuda? Visite nossa <a href="{FAQ_URL}">Central de Ajuda</a>.</p>
+
+        </div>
+
+        <div class="footer">
+             <p>&copy; {ACTUAL_YEAR} {PROJECT_NAME}. Todos os direitos reservados.</p>
+       </div>
+    </div>
+</body>
+</html>

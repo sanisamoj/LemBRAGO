@@ -28,8 +28,9 @@ func main() {
 	adminOrMember := []models.UserRole{models.RoleAdmin, models.RoleMember}
 
 	router.POST("/organizations", controllers.CreateOrganization)
-	router.GET("/login", controllers.GetLoginInfoFromUser)
-	router.POST("/login", controllers.UserLogin)
+	router.POST("/auth", controllers.SendAuthCode)
+	router.POST("/login", controllers.GetLoginInfoFromUser)
+	router.POST("/environment/login", controllers.UserLogin)
 
 	organizationRoute := router.Group("/org")
 	organizationRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{models.RoleAdmin}))

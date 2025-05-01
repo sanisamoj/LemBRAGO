@@ -118,3 +118,35 @@ func convInviteEmail(env, role, code string) (string, error) {
 
 	return body, nil
 }
+
+func SendAuthCodeEmail(to, code string) error {
+	sub := "Código de autenticação"
+	body, err := convAuthCodeEmail(code)
+	if err != nil {
+		return err
+	}
+
+	err = sendEmail(to, sub, body)
+	return err
+}
+
+func convAuthCodeEmail(code string) (string, error) {
+	templateBytes, err := os.ReadFile("templates/auth_code.html")
+	if err != nil {
+		return "", err
+	}
+
+	lUrl := config.GetServerConfig().SELF_URL
+	lFaqUrl := fmt.Sprintf("%s/faq", lUrl)
+
+	htmlTemplate := string(templateBytes)
+	body := htmlTemplate
+	body = strings.ReplaceAll(body, "{PROJECT_NAME}", "LEMBRAGO")
+	body = strings.ReplaceAll(body, "{AUTH_CODE}", code)
+	body = strings.ReplaceAll(body, "{FAQ_URL}", lFaqUrl)
+
+	actYear := time.Now().Year()
+	body = strings.ReplaceAll(body, "{ACTUAL_YEAR}", strconv.Itoa(actYear))
+
+	return body, nil
+}

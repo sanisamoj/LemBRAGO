@@ -3,6 +3,7 @@ package services
 import (
 	"crypto/subtle"
 	"encoding/base64"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,7 +16,22 @@ import (
 	"lembrago.com/lembrago/utils"
 )
 
-func GetLoginInfoFromUser(email string) ([]models.UserWithOrganizationResponse, error) {
+func SendAuthCode(email string) error {
+	users, err := repository.FindAllUsersByEmail(email)
+	if err != nil || len(users) == 0 {
+		return err
+	}
+
+	code := utils.Gen6DigCod()
+	go utils.SendAuthCodeEmail(email, code)
+
+	key := fmt.Sprintf("auth-%s", email)
+	cache.Set(key, code)
+	cache.SetTTL(key, 5 * time.Minute)
+	return nil
+}
+
+func GetLoginInfoFromUser(email, code string) ([]models.UserWithOrganizationResponse, error) {
 	users, err := repository.FindAllUsersByEmail(email)
 	if err != nil {
 		return nil, errors.NewAppError(401, "User not found")
@@ -24,6 +40,13 @@ func GetLoginInfoFromUser(email string) ([]models.UserWithOrganizationResponse, 
 	if len(users) == 0 {
 		return nil, errors.NewAppError(401, "User not found")
 	}
+	
+	key := fmt.Sprintf("auth-%s", email)
+	code, err = cache.Get(key)
+	if err != nil || code == "" {
+		return nil, errors.NewAppError(403, "Invalid Code")
+	}
+	cache.Delete(key)
 
 	var userWithOrganizationResponseList []models.UserWithOrganizationResponse
 	for _, user := range users {

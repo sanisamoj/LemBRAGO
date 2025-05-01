@@ -68,3 +68,12 @@ type MinimalUserInfoResponse struct {
 	CreatedAt string     `json:"createdAt"`
 	UpdatedAt string     `json:"updatedAt"`
 }
+
+type AuthCodeRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type AuthCodeSendRequest struct {
+	Email string `json:"email" validate:"required,email"`
+	Code  string `json:"code" validate:"required"`
+}
