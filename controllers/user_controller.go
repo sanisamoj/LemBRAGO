@@ -12,9 +12,15 @@ import (
 )
 
 func SendAuthCode(c *gin.Context) {
-	var req models.AuthCodeRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	var reqData, exists = c.Get("validatedAuthCodeRequest")
+	if !exists {
+		c.AbortWithStatusJSON(500, gin.H{"error": "Request data not found in context"})
+		return
+	}
+
+	req, ok := reqData.(models.AuthCodeRequest)
+	if !ok {
+		c.AbortWithStatusJSON(500, gin.H{"error": "Request data type assertion failed"})
 		return
 	}
 

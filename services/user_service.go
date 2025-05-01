@@ -24,11 +24,14 @@ func SendAuthCode(email string) error {
 
 	code := utils.Gen6DigCod()
 	go utils.SendAuthCodeEmail(email, code)
+	go regAuthCode(email, code)
+	return nil
+}
 
+func regAuthCode(email, code string) {
 	key := fmt.Sprintf("auth-%s", email)
 	cache.Set(key, code)
 	cache.SetTTL(key, 5 * time.Minute)
-	return nil
 }
 
 func GetLoginInfoFromUser(email, code string) ([]models.UserWithOrganizationResponse, error) {
@@ -47,6 +50,9 @@ func GetLoginInfoFromUser(email, code string) ([]models.UserWithOrganizationResp
 		return nil, errors.NewAppError(403, "Invalid Code")
 	}
 	cache.Delete(key)
+
+	attKey := fmt.Sprintf("att-%s", email)
+	cache.Delete(attKey)
 
 	var userWithOrganizationResponseList []models.UserWithOrganizationResponse
 	for _, user := range users {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -100,4 +101,54 @@ func Delete(key string) error {
 		return fmt.Errorf("cliente Redis não inicializado")
 	}
 	return RedisClient.Del(ctx, key).Err()
+}
+
+func IncrementBy(key string, value int64) (int64, error) {
+	if RedisClient == nil {
+		return 0, fmt.Errorf("client Redis not initialized")
+	}
+	newValue, err := RedisClient.IncrBy(ctx, key, value).Result()
+	if err != nil {
+		return 0, fmt.Errorf("error incrementing key '%s' by %d: %w", key, value, err)
+	}
+	return newValue, nil
+}
+
+func Increment(key string) (int64, error) {
+	return IncrementBy(key, 1)
+}
+
+func DecrementBy(key string, value int64) (int64, error) {
+	if RedisClient == nil {
+		return 0, fmt.Errorf("client Redis not initialized")
+	}
+	newValue, err := RedisClient.DecrBy(ctx, key, value).Result()
+	if err != nil {
+		return 0, fmt.Errorf("error decrementing key '%s' by %d: %w", key, value, err)
+	}
+	return newValue, nil
+}
+
+func Decrement(key string) (int64, error) {
+	return DecrementBy(key, 1)
+}
+
+func GetInt(key string) (int64, error) {
+	if RedisClient == nil {
+		return 0, fmt.Errorf("client Redis not initialized")
+	}
+
+	valStr, err := RedisClient.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return 0, redis.Nil
+	} else if err != nil {
+		return 0, fmt.Errorf("error getting key '%s' from redis: %w", key, err)
+	}
+
+	valInt, errConv := strconv.ParseInt(valStr, 10, 64)
+	if errConv != nil {
+		return 0, fmt.Errorf("value for key '%s' ('%s') could not be parsed as int64: %w", key, valStr, errConv)
+	}
+
+	return valInt, nil
 }

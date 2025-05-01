@@ -28,7 +28,7 @@ func main() {
 	adminOrMember := []models.UserRole{models.RoleAdmin, models.RoleMember}
 
 	router.POST("/organizations", controllers.CreateOrganization)
-	router.POST("/auth", controllers.SendAuthCode)
+	router.POST("/auth", middlewares.DictionaryPreviewMiddleware(), controllers.SendAuthCode)
 	router.POST("/login", controllers.GetLoginInfoFromUser)
 	router.POST("/environment/login", controllers.UserLogin)
 
