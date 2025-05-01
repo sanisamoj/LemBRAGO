@@ -4,8 +4,11 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
+	"mime/multipart"
+	"path/filepath"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"lembrago.com/lembrago/cache"
@@ -14,6 +17,10 @@ import (
 	"lembrago.com/lembrago/models"
 	"lembrago.com/lembrago/repository"
 	"lembrago.com/lembrago/utils"
+)
+
+const (
+	uploadDir = "./uploads"
 )
 
 func SendAuthCode(email string) error {
@@ -31,7 +38,7 @@ func SendAuthCode(email string) error {
 func regAuthCode(email, code string) {
 	key := fmt.Sprintf("auth-%s", email)
 	cache.Set(key, code)
-	cache.SetTTL(key, 5 * time.Minute)
+	cache.SetTTL(key, 5*time.Minute)
 }
 
 func GetLoginInfoFromUser(email, code string) ([]models.UserWithOrganizationResponse, error) {
@@ -43,7 +50,7 @@ func GetLoginInfoFromUser(email, code string) ([]models.UserWithOrganizationResp
 	if len(users) == 0 {
 		return nil, errors.NewAppError(401, "User not found")
 	}
-	
+
 	key := fmt.Sprintf("auth-%s", email)
 	cacheCode, err := cache.Get(key)
 	if err != nil || code != cacheCode {
@@ -275,4 +282,35 @@ func SignOut(token string) error {
 	}
 
 	return nil
+}
+
+func SaveMedia(orgID string, filename string, header *multipart.FileHeader, size int64, c *gin.Context) (*models.SavedMedia, error) {
+	dst := filepath.Join(uploadDir, filename)
+
+	if err := c.SaveUploadedFile(header, dst); err != nil {
+		return nil, fmt.Errorf("Failed to save file: %v", err)
+	}
+
+	selfUrl := config.GetServerConfig().SELF_URL
+	fileURL := fmt.Sprintf("%s/media/%s", selfUrl, filename)
+
+	orgObjID, err := primitive.ObjectIDFromHex(orgID)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid (orgID): %v", err)
+	}
+
+	saveMedia := models.SavedMedia{
+		OrgID:    orgObjID,
+		Filename: filename,
+		URL:      fileURL,
+		Size:     header.Size,
+		SavedAt:  primitive.NewDateTimeFromTime(time.Now()),
+	}
+
+	err = repository.SaveMediaInRepo(&saveMedia)
+	if err != nil {
+		return nil, err
+	}
+
+	return &saveMedia, nil
 }

@@ -36,6 +36,15 @@ type EncryptedKey struct {
 	Nonce      []byte `bson:"nonce" json:"nonce" validate:"required"`
 }
 
+type SavedMedia struct {
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
+	OrgID    primitive.ObjectID `json:"orgId" bson:"orgId"`
+	Filename string             `json:"filename" bson:"filename"`
+	URL      string             `json:"url" bson:"url"`
+	Size     int64              `json:"size" bson:"size"` // Bytes
+	SavedAt  primitive.DateTime `json:"savedAt" bson:"savedAt"`
+}
+
 type UserRole string
 type UserStatus string
 

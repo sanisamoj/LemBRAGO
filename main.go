@@ -27,6 +27,9 @@ func main() {
 
 	router.Use(middlewares.NewRateLimiterMiddleware(time.Second, 3))
 
+	router.StaticFile("/favicon.ico", "./uploads/favicon.ico")
+	router.Static("/uploads", "./uploads")
+
 	adminOnly := []models.UserRole{models.RoleAdmin}
 	adminOrMember := []models.UserRole{models.RoleAdmin, models.RoleMember}
 
@@ -34,6 +37,13 @@ func main() {
 	router.POST("/auth", middlewares.DictionaryPreviewMiddleware(), controllers.SendAuthCode)
 	router.POST("/login", controllers.GetLoginInfoFromUser)
 	router.POST("/environment/login", controllers.UserLogin)
+
+	mediaRoute := router.Group("/media")
+	mediaRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}))
+	{
+		mediaRoute.GET("/:filename", controllers.HandleServeFile)
+		mediaRoute.POST("", controllers.HandleUploadFile)
+	}
 
 	organizationRoute := router.Group("/org")
 	organizationRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{models.RoleAdmin}))

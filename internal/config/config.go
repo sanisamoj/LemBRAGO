@@ -26,6 +26,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = os.MkdirAll("uploads", os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func GetServerConfig() *ServerConfig {

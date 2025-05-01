@@ -105,3 +105,44 @@ func FindUsersByOrgID(orgID primitive.ObjectID) ([]models.User, error) {
 
 	return users, nil
 }
+
+func SaveMediaInRepo(svMedia *models.SavedMedia) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("saved_media")
+	if svMedia.ID == primitive.NilObjectID {
+		svMedia.ID = primitive.NewObjectID()
+	}
+
+	_, err := collection.InsertOne(ctx, svMedia)
+	return err
+}	
+
+func GetAllMediaByOrgID(orgID primitive.ObjectID) ([]models.SavedMedia, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("saved_media")
+	cursor, err := collection.Find(ctx, bson.M{"orgId": orgID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var savedMedia []models.SavedMedia
+	if err = cursor.All(ctx, &savedMedia); err != nil {
+		return nil, err
+	}
+
+	return savedMedia, nil
+}
+
+func DeleteMediaInRepo(id primitive.ObjectID) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("saved_media")
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	return err
+}
