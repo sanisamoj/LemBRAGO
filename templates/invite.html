@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite para {PROJECT_NAME}</title>
+    <style>
+        /* Copie EXATAMENTE os mesmos estilos do seu template de boas-vindas aqui */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            color: #2a2a2a;
+            margin: 0;
+            font-size: 1.5em; /* Ajuste o tamanho se necessário */
+        }
+        .content p {
+            margin-bottom: 15px;
+            color: #555555;
+        }
+        .content strong {
+            color: #333333;
+        }
+        .invite-code {
+            text-align: center;
+            font-size: 1.3em; /* Tamanho maior para o código */
+            font-weight: bold;
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #e9ecef; /* Fundo leve para destacar */
+            border-radius: 5px;
+            color: #0056b3; /* Cor destacada para o código */
+            border: 1px dashed #adb5bd; /* Borda tracejada opcional */
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 20px 0;
+            background-color: #007bff; /* Cor primária do botão */
+            color: #ffffff !important; /* Importante para sobrescrever estilos de link padrão */
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .steps {
+             margin-top: 20px;
+             padding-top: 15px;
+             border-top: 1px solid #eeeeee;
+        }
+         .steps strong {
+             display: block;
+             margin-bottom: 8px;
+             color: #333;
+         }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #888888;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Convite para se juntar ao Ambiente {ENVIRONMENT_NAME}</h1>
+        </div>
+
+        <div class="content">
+            <p>Olá,</p>
+
+            <p>Você foi convidado(a) para se juntar ao ambiente <strong>{ENVIRONMENT_NAME}</strong> dentro do <strong>{PROJECT_NAME}</strong>.</p>
+            <p>Sua tipo atual designado neste ambiente é: <strong>{ROLE_NAME}</strong>.</p>
+
+            <p>O {PROJECT_NAME} é a nossa plataforma segura para gerenciamento de senhas e informações confidenciais, utilizando criptografia Zero-Knowledge para garantir que apenas você tenha acesso aos seus dados.</p>
+
+            <p><strong>Para aceitar este convite, utilize o código abaixo:</strong></p>
+
+            <div class="invite-code">{INVITATION_CODE}</div>
+
+            <div class="steps">
+                 <p><strong>Como prosseguir:</strong></p>
+                 <p><strong>1. Acesse ou Baixe o {PROJECT_NAME}:</strong><br>
+                    Use o link abaixo para ir ao nosso site ou fazer o download do aplicativo desktop.</p>
+
+                <p style="text-align: center;">
+                    <a href="{SELF_URL}" class="cta-button">Acessar {PROJECT_NAME}</a>
+                </p>
+
+                 <p><strong>2. Use o Código de Convite:</strong><br>
+                    <ul>
+                        <li><strong>Se você é novo(a) no {PROJECT_NAME}:</strong> Crie sua conta e insira o código de convite <strong>{INVITATION_CODE}</strong> quando solicitado durante o processo de cadastro.</li>
+                        <li><strong>Se você já possui uma conta:</strong> Faça login na sua conta existente (pelo site ou app desktop) e procure a opção para aceitar convites e insira o código <strong>{INVITATION_CODE}</strong>.</li>
+                    </ul>
+                </p>
+            </div>
+
+
+            <p>Se tiver qualquer dúvida sobre como aceitar o convite ou sobre o {PROJECT_NAME}, por favor, visite nossa <a href="{FAQ_URL}">Central de Ajuda</a> ou entre em contato conosco no nosso site.</p>
+
+            <p>Esperamos vê-lo(a) no ambiente {ENVIRONMENT_NAME} em breve!</p>
+        </div>
+
+        <div class="footer">
+             <p>&copy; {ACTUAL_YEAR} {PROJECT_NAME}. Todos os direitos reservados.</p>
+       </div>
+    </div>
+</body>
+</html>

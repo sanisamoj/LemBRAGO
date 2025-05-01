@@ -161,10 +161,14 @@ func InviteUser(adminID, orgID, email string, role models.UserRole) (string, err
 		UserRole:     string(role),
 	}
 
+	go registerInvCode(code, inviteCode)
+	go utils.SendInviteEmail(email, organization.Name, string(role), code)
+	return code, nil
+}
+
+func registerInvCode(code string, inviteCode models.MinOrgWithTokenResponse) {
 	cache.SetStruct(code, &inviteCode)
 	cache.SetTTL(code, 5*time.Minute)
-
-	return code, nil
 }
 
 func GetInviteCodeToken(code string) (*models.MinOrgWithTokenResponse, error) {

@@ -83,3 +83,38 @@ func convWelcomeEmail(username string) (string, error) {
 
 	return body, nil
 }
+
+func SendInviteEmail(to, env, role, code string) error {
+	sub := "Você foi convidado(a)"
+	body, err := convInviteEmail(env, role, code)
+	if err != nil {
+		return err
+	}
+
+	err = sendEmail(to, sub, body)
+	return err
+}
+
+func convInviteEmail(env, role, code string) (string, error) {
+	templateBytes, err := os.ReadFile("templates/invite.html")
+	if err != nil {
+		return "", err
+	}
+
+	lUrl := config.GetServerConfig().SELF_URL
+	lFaqUrl := fmt.Sprintf("%s/faq", lUrl)
+
+	htmlTemplate := string(templateBytes)
+	body := htmlTemplate
+	body = strings.ReplaceAll(body, "{PROJECT_NAME}", "LEMBRAGO")
+	body = strings.ReplaceAll(body, "{ENVIRONMENT_NAME}", env)
+	body = strings.ReplaceAll(body, "{ROLE_NAME}", role)
+	body = strings.ReplaceAll(body, "{INVITATION_CODE}", code)
+	body = strings.ReplaceAll(body, "{SELF_URL}", lUrl)
+	body = strings.ReplaceAll(body, "{FAQ_URL}", lFaqUrl)
+
+	actYear := time.Now().Year()
+	body = strings.ReplaceAll(body, "{ACTUAL_YEAR}", strconv.Itoa(actYear))
+
+	return body, nil
+}
