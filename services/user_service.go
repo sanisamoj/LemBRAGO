@@ -19,7 +19,7 @@ import (
 func SendAuthCode(email string) error {
 	users, err := repository.FindAllUsersByEmail(email)
 	if err != nil || len(users) == 0 {
-		return err
+		return errors.NewAppError(401, "Invalid Credentials")
 	}
 
 	code := utils.Gen6DigCod()
@@ -45,10 +45,11 @@ func GetLoginInfoFromUser(email, code string) ([]models.UserWithOrganizationResp
 	}
 	
 	key := fmt.Sprintf("auth-%s", email)
-	code, err = cache.Get(key)
-	if err != nil || code == "" {
+	cacheCode, err := cache.Get(key)
+	if err != nil || code != cacheCode {
 		return nil, errors.NewAppError(403, "Invalid Code")
 	}
+
 	cache.Delete(key)
 
 	attKey := fmt.Sprintf("att-%s", email)

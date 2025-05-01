@@ -52,6 +52,11 @@ func GetLoginInfoFromUser(c *gin.Context) {
 		return
 	}
 
+	if req.Code == "" {
+		c.JSON(400, gin.H{"error": "Code is empty"})
+		return
+	}
+
 	loginInfo, err := services.GetLoginInfoFromUser(req.Email, req.Code)
 	if err != nil {
 		c.Error(err)
