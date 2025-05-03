@@ -18,10 +18,11 @@ type CreateUserRequest struct {
 }
 
 type UserResponse struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	OrgId    string `json:"orgId"`
-	Username string `bson:"username" json:"username" validate:"required"`
+	ID       string   `json:"id"`
+	Email    string   `json:"email"`
+	OrgId    string   `json:"orgId"`
+	Username string   `bson:"username" json:"username" validate:"required"`
+	Role     UserRole `json:"role"`
 
 	PasswordVerifier PasswordVerifierResponse `json:"passwordVerifier"`
 	Salt_ek          string                   `json:"salt_ek" validate:"required"`

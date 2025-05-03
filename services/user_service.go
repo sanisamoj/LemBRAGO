@@ -113,6 +113,7 @@ func UserLogin(comparison *models.UserLoginComparison) (*models.UserLoginRespons
 		Email:    user.Email,
 		OrgId:    user.OrgID.Hex(),
 		Username: user.Username,
+		Role:     user.Role,
 
 		PasswordVerifier: models.PasswordVerifierResponse{
 			Salt:       base64.StdEncoding.EncodeToString(user.SaltPV),
