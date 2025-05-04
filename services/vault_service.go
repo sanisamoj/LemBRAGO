@@ -429,31 +429,31 @@ func GetAllMembersFromTheVault(vaultID, userID string) ([]models.VaultMemberResp
 	return vaultMemberResponses, nil
 }
 
-func AddPasswordToVault(userID string, req *models.CreatePasswordRequest) error {
+func AddPasswordToVault(userID string, req *models.CreatePasswordRequest) (*models.PasswordResponse, error) {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid userID")
+		return nil, errors.NewAppError(400, "Invalid userID")
 	}
 
 	vaultObjID, err := primitive.ObjectIDFromHex(req.VaultID)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid vaultID")
+		return nil, errors.NewAppError(400, "Invalid vaultID")
 	}
 	permission, err := repository.FindMemberByUserVaultID(vaultObjID, userObjID)
 	if err != nil {
-		return errors.NewAppError(403, "Invalid Permission")
+		return nil, errors.NewAppError(403, "Invalid Permission")
 	}
 	if permission.Permission != models.ADMIN {
-		return errors.NewAppError(403, "Invalid Permission")
+		return nil, errors.NewAppError(403, "Invalid Permission")
 	}
 
 	cipherBytes, err := utils.Base64ToBytes(req.EncryptedItemData.Ciphertext)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid base64 Ciphertext format")
+		return nil, errors.NewAppError(400, "Invalid base64 Ciphertext format")
 	}
 	nonceBytes, err := utils.Base64ToBytes(req.EncryptedItemData.Nonce)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid base64 Nonce format")
+		return nil, errors.NewAppError(400, "Invalid base64 Nonce format")
 	}
 
 	eid := models.EncryptedKey{
@@ -472,9 +472,21 @@ func AddPasswordToVault(userID string, req *models.CreatePasswordRequest) error 
 
 	err = repository.AddPasswordToVault(password)
 	if err != nil {
-		return errors.NewAppError(500, "Unknown Error")
+		return nil, errors.NewAppError(500, "Unknown Error")
 	}
-	return nil
+
+	passwords := models.PasswordResponse{
+		ID:      password.ID.Hex(),
+		VaultID: password.VaultID.Hex(),
+		EncryptedItemData: models.EncryptedKeyDto{
+			Ciphertext: utils.BytesToBase64(password.EncryptedItemData.Ciphertext),
+			Nonce:      utils.BytesToBase64(password.EncryptedItemData.Nonce),
+		},
+		CreatedAt: password.CreatedAt.Time().Format(time.RFC3339),
+		UpdatedAt: password.UpdatedAt.Time().Format(time.RFC3339),
+	}
+
+	return &passwords, nil
 }
 
 func DeletePasswordFromVault(userID, passwordID string) error {

@@ -25,7 +25,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	router.Use(middlewares.NewRateLimiterMiddleware(time.Second, 3))
+	router.Use(middlewares.NewRateLimiterMiddleware(time.Minute, 100))
 
 	router.StaticFile("/favicon.ico", "./uploads/favicon.ico")
 	router.Static("/uploads", "./uploads")

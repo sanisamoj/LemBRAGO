@@ -247,13 +247,13 @@ func CreatePassword(c *gin.Context) {
 		return
 	}
 
-	err = services.AddPasswordToVault(userID, &req)
+	password, err := services.AddPasswordToVault(userID, &req)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(201, password)
 }
 
 func DeletePassword(c *gin.Context) {
