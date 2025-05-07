@@ -15,6 +15,7 @@ type VaultMemberResponse struct {
 	ID             string `json:"id"`
 	VaultID        string `json:"vaultId"`
 	UserID         string `json:"userId"`
+	Username       string `json:"username"`
 	Email          string `json:"email"`
 	ESVK_PubK_User string `json:"esvk_pubK_user"`
 	Permission     string `json:"permission"`

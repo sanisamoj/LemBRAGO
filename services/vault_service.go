@@ -417,6 +417,7 @@ func GetAllMembersFromTheVault(vaultID, userID string) ([]models.VaultMemberResp
 			ID:             vaultMember.ID.Hex(),
 			VaultID:        vaultMember.VaultID.Hex(),
 			UserID:         vaultMember.UserID.Hex(),
+			Username:       user.Username,
 			Email:          user.Email,
 			ESVK_PubK_User: base64.StdEncoding.EncodeToString(vaultMember.ESVK_PubK_User),
 			Permission:     string(vaultMember.Permission),
