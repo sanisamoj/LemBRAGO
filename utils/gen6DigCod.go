@@ -6,5 +6,5 @@ import (
 )
 
 func Gen6DigCod() string {
-	return fmt.Sprintf("%06d", rand.Intn(10000000))
+	return fmt.Sprintf("%06d", rand.Intn(1000000))
 }
