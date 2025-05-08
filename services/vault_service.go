@@ -292,10 +292,17 @@ func AddMemberToVault(userID string, req *models.CreateVaultMemberRequest) (*mod
 
 	repository.AddVaultMember(&vaultMember)
 
+	targetUser, err := repository.FindUserByID(memberObJID)
+	if err != nil {
+		return nil, errors.NewAppError(404, "User not found")
+	}
+
 	vaultMemberResponse := models.VaultMemberResponse{
 		ID:             vaultMember.ID.Hex(),
 		VaultID:        vaultMember.VaultID.Hex(),
 		UserID:         vaultMember.UserID.Hex(),
+		Username:       targetUser.Username,
+		Email:          targetUser.Email,
 		ESVK_PubK_User: base64.StdEncoding.EncodeToString(vaultMember.ESVK_PubK_User),
 		Permission:     string(vaultMember.Permission),
 		AddedBy:        vaultMember.AddedBy.Hex(),
