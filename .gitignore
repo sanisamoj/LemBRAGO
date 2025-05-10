@@ -35,4 +35,3 @@ coverage.out
 *.log
 
 .env
-uploads/
