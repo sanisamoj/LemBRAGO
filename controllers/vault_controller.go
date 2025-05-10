@@ -306,13 +306,13 @@ func UpdatePasswordInVault(c *gin.Context) {
 		return
 	}
 
-	err = services.UpdatePasswordInVault(userID, &req)
+	pRes, err := services.UpdatePasswordInVault(userID, &req)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Password updated successfully"})
+	c.JSON(200, pRes)
 }
 
 func GetAllPasswordsFromVault(c *gin.Context) {

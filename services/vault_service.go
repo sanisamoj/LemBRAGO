@@ -529,37 +529,37 @@ func DeletePasswordFromVault(userID, passwordID string) error {
 	return nil
 }
 
-func UpdatePasswordInVault(userID string, req *models.UpdatePasswordRequest) error {
+func UpdatePasswordInVault(userID string, req *models.UpdatePasswordRequest) (*models.PasswordResponse, error) {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid userID")
+		return nil, errors.NewAppError(400, "Invalid userID")
 	}
 
 	passwordObjID, err := primitive.ObjectIDFromHex(req.PasswordID)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid passwordID")
+		return nil, errors.NewAppError(400, "Invalid passwordID")
 	}
 
 	password, err := repository.FindPasswordByID(passwordObjID)
 	if err != nil {
-		return errors.NewAppError(404, "Password not found")
+		return nil, errors.NewAppError(404, "Password not found")
 	}
 
 	permission, err := repository.FindMemberByUserVaultID(password.VaultID, userObjID)
 	if err != nil {
-		return errors.NewAppError(403, "Invalid Permission")
+		return nil, errors.NewAppError(403, "Invalid Permission")
 	}
 	if permission.Permission != models.WRITE && permission.Permission != models.ADMIN {
-		return errors.NewAppError(403, "Invalid Permission")
+		return nil, errors.NewAppError(403, "Invalid Permission")
 	}
 
 	cipherBytes, err := utils.Base64ToBytes(req.EncryptedItemData.Ciphertext)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid base64 Ciphertext format")
+		return nil, errors.NewAppError(400, "Invalid base64 Ciphertext format")
 	}
 	nonceBytes, err := utils.Base64ToBytes(req.EncryptedItemData.Nonce)
 	if err != nil {
-		return errors.NewAppError(400, "Invalid base64 Nonce format")
+		return nil, errors.NewAppError(400, "Invalid base64 Nonce format")
 	}
 
 	eid := models.EncryptedKey{
@@ -570,10 +570,12 @@ func UpdatePasswordInVault(userID string, req *models.UpdatePasswordRequest) err
 
 	err = repository.UpdatePasswordInVault(passwordObjID, password.EncryptedItemData, userObjID)
 	if err != nil {
-		return errors.NewAppError(500, "Unknown Error")
+		return nil, errors.NewAppError(500, "Unknown Error")
 	}
 
-	return nil
+	pRes := NewPasswordResponse(*password)
+
+	return &pRes, nil
 }
 
 func GetAllPasswordsFromVault(userID, vaultID string) ([]models.PasswordResponse, error) {
@@ -619,4 +621,17 @@ func GetAllPasswordsFromVault(userID, vaultID string) ([]models.PasswordResponse
 	}
 
 	return passwords, nil
+}
+
+func NewPasswordResponse(password models.Password) models.PasswordResponse {
+	return models.PasswordResponse{
+		ID:      password.ID.Hex(),
+		VaultID: password.VaultID.Hex(),
+		EncryptedItemData: models.EncryptedKeyDto{
+			Ciphertext: utils.BytesToBase64(password.EncryptedItemData.Ciphertext),
+			Nonce:      utils.BytesToBase64(password.EncryptedItemData.Nonce),
+		},
+		CreatedAt: password.CreatedAt.Time().Format(time.RFC3339),
+		UpdatedAt: password.UpdatedAt.Time().Format(time.RFC3339),
+	}
 }
