@@ -32,6 +32,7 @@ func FacVaultMemberResponse(email string, vaultMember *models.VaultMember) *mode
 		VaultID:        vaultMember.VaultID.Hex(),
 		UserID:         vaultMember.UserID.Hex(),
 		Email:          email,
+		Username:       nil,
 		ESVK_PubK_User: BytesToBase64(vaultMember.ESVK_PubK_User),
 		Permission:     string(vaultMember.Permission),
 		AddedBy:        vaultMember.AddedBy.Hex(),

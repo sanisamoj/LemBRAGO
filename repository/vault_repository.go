@@ -60,6 +60,23 @@ func FindVaultByID(id primitive.ObjectID) (*models.Vault, error) {
 	return &vault, nil
 }
 
+func UpdateVaultById(id primitive.ObjectID, vault models.Vault) (*models.Vault, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("vaults")
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, vault)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.MatchedCount == 0 {
+		return nil, errors.NewAppError(404, "Vault not found")
+	}
+
+	return &vault, nil
+}
+
 func RemoveVaultByID(id primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

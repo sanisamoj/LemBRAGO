@@ -79,6 +79,71 @@ func CreateVault(userID string, req *models.CreateVaultRequest) (*models.VaultRe
 	return vaultResponse, nil
 }
 
+func UpdateVault(userID string, req *models.UpdateVaultRequest) (*models.VaultResponse, error) {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid userID")
+	}
+
+	vaultObjID, err := primitive.ObjectIDFromHex(req.VaultId)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid vaultID")
+	}
+
+	vault, err := repository.FindVaultByID(vaultObjID)
+	if err != nil {
+		return nil, errors.NewAppError(404, "Vault not found")
+	}
+
+	user, err := repository.FindUserByID(userObjID)
+	if err != nil {
+		return nil, errors.NewAppError(404, "User not found")
+	}
+	if user.Role != models.RoleAdmin || vault.CreatedBy != userObjID {
+		return nil, errors.NewAppError(403, "Only admin or owner can update vault")
+	}
+
+	cipherBytes, err := utils.Base64ToBytes(req.EncryptedVaultMetadata.Ciphertext)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid cipherText")
+	}
+	nonceBytes, err := utils.Base64ToBytes(req.EncryptedVaultMetadata.Nonce)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid nonce")
+	}
+
+	vault.EncryptedVaultMetadata = models.EncryptedKey{
+		Ciphertext: cipherBytes,
+		Nonce:      nonceBytes,
+	}
+	vault.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+	repository.UpdateVaultById(vault.ID, *vault)
+
+	vaultMember, err := repository.FindMemberByUserVaultID(vault.ID, user.ID)
+	if err != nil {
+		return nil, errors.NewAppError(404, "Vault member not found")
+	}
+
+	esvkBytes, err := utils.Base64ToBytes(req.ESVK_PubK_User)
+	if err != nil {
+		return nil, errors.NewAppError(400, "Invalid eskv")
+	}
+
+	err = repository.UpdateVaultMember(vaultMember.ID, esvkBytes, vaultMember.Permission)
+	if err != nil {
+		return nil, errors.NewAppError(500, "Failed to update vault member")
+	}
+
+	updatedMember, err := repository.FindMemberByUserVaultID(vault.ID, user.ID)
+	if err != nil {
+		return nil, errors.NewAppError(404, "Vault member not found")
+	}
+
+	vaultResponse := utils.FacVaultResponse(vault, user.Email, updatedMember)
+
+	return vaultResponse, nil
+}
+
 func CreatePersonalVault(userID, orgID string, req *models.CreateVaultRequest) (*models.VaultResponse, error) {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
@@ -301,7 +366,7 @@ func AddMemberToVault(userID string, req *models.CreateVaultMemberRequest) (*mod
 		ID:             vaultMember.ID.Hex(),
 		VaultID:        vaultMember.VaultID.Hex(),
 		UserID:         vaultMember.UserID.Hex(),
-		Username:       targetUser.Username,
+		Username:       &targetUser.Username,
 		Email:          targetUser.Email,
 		ESVK_PubK_User: base64.StdEncoding.EncodeToString(vaultMember.ESVK_PubK_User),
 		Permission:     string(vaultMember.Permission),
@@ -424,7 +489,7 @@ func GetAllMembersFromTheVault(vaultID, userID string) ([]models.VaultMemberResp
 			ID:             vaultMember.ID.Hex(),
 			VaultID:        vaultMember.VaultID.Hex(),
 			UserID:         vaultMember.UserID.Hex(),
-			Username:       user.Username,
+			Username:       &user.Username,
 			Email:          user.Email,
 			ESVK_PubK_User: base64.StdEncoding.EncodeToString(vaultMember.ESVK_PubK_User),
 			Permission:     string(vaultMember.Permission),

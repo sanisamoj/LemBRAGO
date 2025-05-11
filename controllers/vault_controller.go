@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -57,6 +58,41 @@ func CreateVault(c *gin.Context) {
 	}
 
 	c.JSON(201, vault)
+}
+
+func UpdateVault(c *gin.Context) {
+	var req models.UpdateVaultRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	fmt.Println(req)
+
+	userIDRaw, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (userID type)"})
+		return
+	}
+
+	vault, err := services.UpdateVault(userID, &req)
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.JSON(200, vault)
 }
 
 func RemoveVault(c *gin.Context) {

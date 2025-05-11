@@ -72,6 +72,7 @@ func main() {
 	vaultRoute := router.Group("/vaults")
 	{
 		vaultRoute.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.CreateVault)
+		vaultRoute.PUT("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdateVault)
 		vaultRoute.DELETE("/:id", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.RemoveVault)
 		vaultRoute.GET("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.GetAllMembersFromTheVault)
 		vaultRoute.POST("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.AddMemberToVault)
