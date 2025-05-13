@@ -37,12 +37,10 @@ func main() {
 	router.POST("/auth", middlewares.DictionaryPreviewMiddleware(), controllers.SendAuthCode)
 	router.POST("/login", controllers.GetLoginInfoFromUser)
 	router.POST("/environment/login", controllers.UserLogin)
-
-	mediaRoute := router.Group("/media")
-	mediaRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}))
-	{
-		mediaRoute.GET("/:filename", controllers.HandleServeFile)
-		mediaRoute.POST("", controllers.HandleUploadFile)
+	
+	{	
+		router.GET("/media/:filename", controllers.HandleServeFile)
+		router.POST("/media", middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}), controllers.HandleUploadFile)
 	}
 
 	organizationRoute := router.Group("/org")
