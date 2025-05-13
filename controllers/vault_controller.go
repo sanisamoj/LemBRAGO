@@ -12,6 +12,7 @@ import (
 
 func CreateVault(c *gin.Context) {
 	var req models.CreateVaultRequest
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 15<<10)
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -62,6 +63,7 @@ func CreateVault(c *gin.Context) {
 
 func UpdateVault(c *gin.Context) {
 	var req models.UpdateVaultRequest
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 15<<10)
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -157,6 +159,7 @@ func GetMyVaultsByOrgID(c *gin.Context) {
 
 func AddMemberToVault(c *gin.Context) {
 	var req models.CreateVaultMemberRequest
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 10<<10)
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -216,6 +219,7 @@ func RemoveMemberFromTheVault(c *gin.Context) {
 }
 
 func UpdateMemberPermission(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 10<<10)
 	userIDRaw, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Unauthorized"})
@@ -260,6 +264,7 @@ func UpdateMemberPermission(c *gin.Context) {
 }
 
 func CreatePassword(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 15<<10)
 	var req models.CreatePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -320,6 +325,7 @@ func DeletePassword(c *gin.Context) {
 }
 
 func UpdatePasswordInVault(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 10<<10)
 	userIDRaw, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Unauthorized"})
