@@ -119,6 +119,21 @@ func SaveMediaInRepo(svMedia *models.SavedMedia) error {
 	return err
 }	
 
+func GetMediaByID(id primitive.ObjectID) (*models.SavedMedia, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("saved_media")
+
+	var svMedia models.SavedMedia
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&svMedia)
+	if err != nil {
+		return nil, err
+	}
+
+	return &svMedia, nil
+}
+
 func GetAllMediaByOrgID(orgID primitive.ObjectID) ([]models.SavedMedia, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

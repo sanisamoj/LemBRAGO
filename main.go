@@ -84,6 +84,9 @@ func main() {
 		vaultRoute.POST("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.CreatePassword)
 		vaultRoute.PUT("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdatePasswordInVault)
 		vaultRoute.DELETE("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeletePassword)
+
+		vaultRoute.GET("/medias", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.GetAllMediasFromTheOrg)
+		vaultRoute.DELETE("/medias", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeleteMedia)
 	}
 
 	router.DELETE("/signout", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.Signout)

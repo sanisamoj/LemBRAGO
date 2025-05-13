@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"lembrago.com/lembrago/models"
+	"lembrago.com/lembrago/repository"
 	"lembrago.com/lembrago/services"
 )
 
@@ -110,6 +111,23 @@ func HandleUploadFile(c *gin.Context) {
 	c.JSON(http.StatusOK, svMedia)
 }
 
+func DeleteMedia(c *gin.Context) {
+	userIDRaw, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userIDStr, ok := userIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (userID type)"})
+		return
+	}
+
+	mID := c.Query("id")
+	services.DeleteMediaByID(userIDStr, mID)
+
+	c.Status(200)
+}
 
 func HandleServeFile(c *gin.Context) {
 	filename := c.Param("filename")
@@ -127,4 +145,30 @@ func HandleServeFile(c *gin.Context) {
 		return
 	}
 	c.File(filePath)
+}
+
+func GetAllMediasFromTheOrg(c *gin.Context) {
+	orgIDRaw, exists := c.Get("orgID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	orgID, ok := orgIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (orgID type)"})
+		return
+	}
+
+	orgObjID, err := primitive.ObjectIDFromHex(orgID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (orgID type)"})
+		return
+	}
+	medias, err := repository.GetAllMediaByOrgID(orgObjID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, medias)
 }

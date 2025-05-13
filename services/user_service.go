@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"mime/multipart"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -314,4 +315,57 @@ func SaveMedia(orgID string, filename string, header *multipart.FileHeader, size
 	}
 
 	return &saveMedia, nil
+}
+
+func GetAllMediaFromTheOrg(orgID string) ([]models.SavedMedia, error) {
+	orgObjID, err := primitive.ObjectIDFromHex(orgID)
+	if err != nil {
+		return nil, err
+	}
+	medias, err := repository.GetAllMediaByOrgID(orgObjID)
+	if err != nil {
+		return nil, err
+	}
+
+	return medias, nil
+}
+
+func DeleteMediaByID(userID, mediaID string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return err
+	}
+
+	user, err := repository.FindUserByID(userObjID)
+	if err != nil {
+		return nil
+	}
+
+	if user.Role != models.RoleAdmin {
+		return errors.NewAppError(403, "Invalid Permission")
+	}
+
+	mObjID, err := primitive.ObjectIDFromHex(mediaID)
+	if err != nil {
+		return err
+	}
+
+	mediaToDelete, err := repository.GetMediaByID(mObjID)
+	if err != nil {
+		return fmt.Errorf("Failed to get media details: %v", err)
+	}
+	if mediaToDelete == nil {
+		return fmt.Errorf("Media with ID %s not found", mediaID)
+	}
+
+	filePath := filepath.Join(uploadDir, mediaToDelete.Filename)
+	if err := os.Remove(filePath); err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Printf("Failed to delete media file '%s' from filesystem: %v\n", filePath, err)
+		}
+	}
+
+	repository.DeleteMediaInRepo(mObjID)
+
+	return nil
 }
