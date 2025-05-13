@@ -225,6 +225,39 @@ func UserRegister(request *models.CreateUserRequest, orgID, email string, role m
 	return nil
 }
 
+func DeleteUser(userID, targetUserID string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return errors.NewAppError(400, "Invalid userID format")
+	}
+
+	user, err := repository.FindUserByID(userObjID)
+	if err != nil {
+		return errors.NewAppError(404, "User not found")
+	}
+
+	if user.Role != models.RoleAdmin {
+		return errors.NewAppError(403, "Only admin can delete user")
+	}
+
+	targetUserObjID, err := primitive.ObjectIDFromHex(targetUserID)
+	if err != nil {
+		return errors.NewAppError(400, "Invalid userID format")
+	}
+
+	_, err = repository.FindUserByID(targetUserObjID)
+	if err != nil {
+		return errors.NewAppError(404, "User not found")
+	}
+
+	err = repository.DeleteUser(targetUserObjID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetUserByID(userID string) (*models.MinimalUserInfoResponse, error) {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
@@ -250,6 +283,10 @@ func GetUsersByOrgID(orgID string) ([]models.MinimalUserInfoResponse, error) {
 	users, err := repository.FindUsersByOrgID(OrgObjectID)
 	if err != nil {
 		return nil, errors.NewAppError(404, "Users not found")
+	}
+
+	if len(users) == 0 {
+		return make([]models.MinimalUserInfoResponse, 0), nil
 	}
 
 	var minimalUsers []models.MinimalUserInfoResponse

@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"lembrago.com/lembrago/database"
-	"lembrago.com/lembrago/errors"
 	"lembrago.com/lembrago/models"
 )
 
@@ -97,10 +96,6 @@ func FindUsersByOrgID(orgID primitive.ObjectID) ([]models.User, error) {
 	var users []models.User
 	if err = cursor.All(ctx, &users); err != nil {
 		return nil, err
-	}
-
-	if len(users) == 0 {
-		return nil, errors.NewAppError(404, "No users found")
 	}
 
 	return users, nil

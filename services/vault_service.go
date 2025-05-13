@@ -309,10 +309,6 @@ func FindMyAllVaultsByOrgID(userID, orgID string) ([]models.VaultWithMemberInfo,
 		return nil, errors.NewAppError(404, "Vaults not found")
 	}
 
-	if len(vaultsWithMember) == 0 {
-		return nil, errors.NewAppError(404, "Vaults not found")
-	}
-
 	return vaultsWithMember, nil
 }
 
@@ -668,7 +664,7 @@ func GetAllPasswordsFromVault(userID, vaultID string) ([]models.PasswordResponse
 	}
 
 	if len(allEid) == 0 {
-		return nil, errors.NewAppError(404, "Passwords not found")
+		return make([]models.PasswordResponse, 0), nil
 	}
 
 	var passwords []models.PasswordResponse

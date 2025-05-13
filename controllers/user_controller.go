@@ -151,6 +151,33 @@ func UserRegister(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
+func DeleteUser(c *gin.Context) {
+	ownerID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	strOwnerID, ok := ownerID.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (userID type)"})
+		return
+	}
+
+	userID := c.Query("userId")
+	if userID == strOwnerID {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+
+	err := services.DeleteUser(strOwnerID, userID)
+	if err != nil {
+		c.Error(err)
+	}
+
+	c.Status(200)
+}
+
 func GetUsers(c *gin.Context) {
 	id := c.Query("userId")
 

@@ -101,6 +101,10 @@ func FindAllVaultsByUserOrgID(orgID primitive.ObjectID, userID primitive.ObjectI
 		return nil, err
 	}
 
+	if len(vaultMembers) == 0 {
+		return make([]models.VaultWithMemberInfo, 0), nil
+	}
+
 	var vaults []models.VaultWithMemberInfo
 	for _, vaultMember := range vaultMembers {
 		vault, err := FindVaultByID(vaultMember.VaultID)

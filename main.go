@@ -37,8 +37,8 @@ func main() {
 	router.POST("/auth", middlewares.DictionaryPreviewMiddleware(), controllers.SendAuthCode)
 	router.POST("/login", controllers.GetLoginInfoFromUser)
 	router.POST("/environment/login", controllers.UserLogin)
-	
-	{	
+
+	{
 		router.GET("/media/:filename", controllers.HandleServeFile)
 		router.POST("/media", middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}), controllers.HandleUploadFile)
 	}
@@ -47,6 +47,7 @@ func main() {
 	organizationRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{models.RoleAdmin}))
 	{
 		organizationRoute.GET("/users", controllers.GetUsers)
+		organizationRoute.DELETE("/users", controllers.DeleteUser)
 	}
 
 	inviteRoute := router.Group("/invites")

@@ -72,4 +72,19 @@ func createIndexes() {
 	if err != nil {
 		log.Fatal("Erro ao criar índice:", err)
 	}
+
+	vaultMembersCollection := GetCollection("vault_members")
+
+	indexModel = mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "userId", Value: 1},
+			{Key: "vaultId", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	}
+
+	_, err = vaultMembersCollection.Indexes().CreateOne(ctx, indexModel)
+	if err != nil {
+		log.Fatal("Erro ao criar índice:", err)
+	}
 }
