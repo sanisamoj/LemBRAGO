@@ -44,7 +44,6 @@ func main() {
 	}
 
 	media := router.Group("/media")
-	media.Use(middlewares.NewRateLimiterMiddleware(10*time.Second, 1000))
 	{
 		media.GET("/:filename", controllers.HandleServeFile)
 		media.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}), controllers.HandleUploadFile)
