@@ -33,59 +33,76 @@ func main() {
 	adminOnly := []models.UserRole{models.RoleAdmin}
 	adminOrMember := []models.UserRole{models.RoleAdmin, models.RoleMember}
 
-	router.POST("/organizations", controllers.CreateOrganization)
-	router.POST("/auth", middlewares.DictionaryPreviewMiddleware(), controllers.SendAuthCode)
-	router.POST("/login", controllers.GetLoginInfoFromUser)
-	router.POST("/environment/login", controllers.UserLogin)
-
+	public := router.Group("/")
+	public.Use(middlewares.NewRateLimiterMiddleware(time.Minute, 100))
 	{
-		router.GET("/media/:filename", controllers.HandleServeFile)
-		router.POST("/media", middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}), controllers.HandleUploadFile)
+		public.POST("/organizations", controllers.CreateOrganization)
+		public.POST("/auth", middlewares.DictionaryPreviewMiddleware(), controllers.SendAuthCode)
+		public.POST("/login", controllers.GetLoginInfoFromUser)
+		public.POST("/environment/login", controllers.UserLogin)
+		public.GET("/invites/:id", controllers.GetInvitedCodeToken)
 	}
 
-	organizationRoute := router.Group("/org")
-	organizationRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{models.RoleAdmin}))
+	media := router.Group("/media")
+	media.Use(middlewares.NewRateLimiterMiddleware(10*time.Second, 1000))
 	{
-		organizationRoute.GET("/users", controllers.GetUsers)
-		organizationRoute.DELETE("/users", controllers.DeleteUser)
+		media.GET("/:filename", controllers.HandleServeFile)
+		media.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}), controllers.HandleUploadFile)
 	}
 
-	inviteRoute := router.Group("/invites")
+	organization := router.Group("/org")
+	organization.Use(
+		middlewares.NewRateLimiterMiddleware(time.Minute, 100),
+		middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{models.RoleAdmin}),
+	)
 	{
-		inviteRoute.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.InviteUser)
-		inviteRoute.GET("/:id", controllers.GetInvitedCodeToken)
+		organization.GET("/users", controllers.GetUsers)
+		organization.DELETE("/users", controllers.DeleteUser)
 	}
 
-	creationUserRoute := router.Group("/users/creation")
-	creationUserRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecretUserCreation, []models.UserRole{}))
+	invites := router.Group("/invites")
+	invites.Use(middlewares.NewRateLimiterMiddleware(time.Minute, 100))
 	{
-		creationUserRoute.POST("", controllers.UserRegister)
+		invites.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.InviteUser)
 	}
 
-	userRoute := router.Group("/users")
-	userRoute.Use(middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}))
+	creation := router.Group("/users/creation")
+	creation.Use(
+		middlewares.NewRateLimiterMiddleware(time.Minute, 100),
+		middlewares.AuthMiddleware(appConfig.JWTSecretUserCreation, []models.UserRole{}),
+	)
 	{
-		userRoute.GET("/vaults", controllers.GetMyVaultsByOrgID)
+		creation.POST("", controllers.UserRegister)
 	}
 
-	vaultRoute := router.Group("/vaults")
+	user := router.Group("/users")
+	user.Use(
+		middlewares.NewRateLimiterMiddleware(time.Minute, 100),
+		middlewares.AuthMiddleware(appConfig.JWTSecret, []models.UserRole{}),
+	)
 	{
-		vaultRoute.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.CreateVault)
-		vaultRoute.PUT("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdateVault)
-		vaultRoute.DELETE("/:id", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.RemoveVault)
-		vaultRoute.GET("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.GetAllMembersFromTheVault)
-		vaultRoute.POST("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.AddMemberToVault)
-		vaultRoute.DELETE("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.RemoveMemberFromTheVault)
+		user.GET("/vaults", controllers.GetMyVaultsByOrgID)
+	}
 
-		vaultRoute.PUT("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdateMemberPermission)
+	vaults := router.Group("/vaults")
+	vaults.Use(middlewares.NewRateLimiterMiddleware(time.Minute, 100))
+	{
+		vaults.POST("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.CreateVault)
+		vaults.PUT("", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdateVault)
+		vaults.DELETE("/:id", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.RemoveVault)
 
-		vaultRoute.GET("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.GetAllPasswordsFromVault)
-		vaultRoute.POST("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.CreatePassword)
-		vaultRoute.PUT("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdatePasswordInVault)
-		vaultRoute.DELETE("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeletePassword)
+		vaults.GET("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.GetAllMembersFromTheVault)
+		vaults.POST("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.AddMemberToVault)
+		vaults.DELETE("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.RemoveMemberFromTheVault)
+		vaults.PUT("/members", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdateMemberPermission)
 
-		vaultRoute.GET("/medias", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.GetAllMediasFromTheOrg)
-		vaultRoute.DELETE("/medias", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeleteMedia)
+		vaults.GET("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.GetAllPasswordsFromVault)
+		vaults.POST("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.CreatePassword)
+		vaults.PUT("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.UpdatePasswordInVault)
+		vaults.DELETE("/passwords", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeletePassword)
+
+		vaults.GET("/medias", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOnly), controllers.GetAllMediasFromTheOrg)
+		vaults.DELETE("/medias", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.DeleteMedia)
 	}
 
 	router.DELETE("/signout", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.Signout)

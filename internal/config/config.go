@@ -31,6 +31,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	go IconPopulate()
 }
 
 func GetServerConfig() *ServerConfig {
