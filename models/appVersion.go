@@ -1,10 +1,6 @@
 package models
 
-import (
-	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type AppVersion struct {
 	ID                  primitive.ObjectID `bson:"_id" json:"id"`
@@ -13,5 +9,5 @@ type AppVersion struct {
 	LatestDesktopVersion string `bson:"latestDesktopVersion" json:"latestDesktopVersion" validate:"required"`
 	MinDesktopVersion    string `bson:"minDesktopVersion" json:"minDesktopVersion" validate:"required"`
 
-	CreatedAt *time.Time `bson:"createdAt" json:"createdAt"`
+	CreatedAt primitive.DateTime `bson:"createdAt" json:"createdAt"`
 }

@@ -58,3 +58,16 @@ func GetLastestAppVersion() (*models.AppVersion, error) {
 	
 	return &version, nil
 }
+
+func UpdateAppVersion(version *models.AppVersion) (*models.AppVersion, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("appVersion")
+	_, err := collection.UpdateOne(ctx, bson.M{"_id": version.ID}, bson.M{"$set": version})
+	if err != nil {
+		return nil, err
+	}
+
+	return version, nil
+}

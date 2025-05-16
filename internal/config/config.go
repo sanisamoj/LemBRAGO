@@ -11,6 +11,7 @@ import (
 type ServerConfig struct {
 	JWTSecret             []byte
 	JWTSecretUserCreation []byte
+	JWTSecretAdmin        []byte
 	JWTIssuer             string
 	Host                  string
 	Port                  string
@@ -38,7 +39,8 @@ func init() {
 func GetServerConfig() *ServerConfig {
 	cfg := &ServerConfig{
 		JWTSecret:             []byte(os.Getenv("JWT_SECRET")),
-		JWTSecretUserCreation: []byte(os.Getenv("JWT_SECRET_USER_CREATION")), // Carregue se usar
+		JWTSecretUserCreation: []byte(os.Getenv("JWT_SECRET_USER_CREATION")),
+		JWTSecretAdmin:        []byte(os.Getenv("JWT_SECRET_ADMIN")),
 		JWTIssuer:             os.Getenv("JWT_ISSUER"),
 		Host:                  os.Getenv("HOST"),
 		Port:                  os.Getenv("PORT"),
