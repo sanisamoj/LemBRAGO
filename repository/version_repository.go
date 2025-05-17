@@ -11,11 +11,11 @@ import (
 	"lembrago.com/lembrago/models"
 )
 
-func RegisterAppVersion(version *models.AppVersion) error {
+func RegisterAppVersion(version *models.ApplicationVersion) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := database.GetCollection("appVersion")
+	collection := database.GetCollection("version")
 	if version.ID == primitive.NilObjectID {
 		version.ID = primitive.NewObjectID()
 	}
@@ -24,18 +24,22 @@ func RegisterAppVersion(version *models.AppVersion) error {
 	return err
 }
 
-func GetAllAppVersion() ([]models.AppVersion, error) {
+func GetAllVersions() ([]models.ApplicationVersion, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := database.GetCollection("appVersion")
-	cursor, err := collection.Find(ctx, bson.M{})
+	collection := database.GetCollection("version")
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "createdAt", Value: -1}})
+
+	cursor, err := collection.Find(ctx, bson.M{}, findOptions)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var versions []models.AppVersion
+	var versions []models.ApplicationVersion
 	if err = cursor.All(ctx, &versions); err != nil {
 		return nil, err
 	}
@@ -43,27 +47,27 @@ func GetAllAppVersion() ([]models.AppVersion, error) {
 	return versions, nil
 }
 
-func GetLastestAppVersion() (*models.AppVersion, error) {
+func GetLastestVersion() (*models.ApplicationVersion, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := database.GetCollection("appVersion")
+	collection := database.GetCollection("version")
 	opts := options.FindOne().SetSort(bson.D{{Key: "createdAt", Value: -1}})
 
-	var version models.AppVersion
+	var version models.ApplicationVersion
 	err := collection.FindOne(ctx, bson.M{}, opts).Decode(&version)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &version, nil
 }
 
-func UpdateAppVersion(version *models.AppVersion) (*models.AppVersion, error) {
+func UpdateAppVersion(version *models.ApplicationVersion) (*models.ApplicationVersion, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := database.GetCollection("appVersion")
+	collection := database.GetCollection("version")
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": version.ID}, bson.M{"$set": version})
 	if err != nil {
 		return nil, err

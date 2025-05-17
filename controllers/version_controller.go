@@ -1,6 +1,11 @@
 package controllers
 
 import (
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/gin-gonic/gin"
 	"lembrago.com/lembrago/models"
 	"lembrago.com/lembrago/services"
@@ -27,7 +32,7 @@ func GetAllVersions(c *gin.Context) {
 }
 
 func RegisterVersion(c *gin.Context) {
-	var req models.AppVersion
+	var req models.ApplicationVersion
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -43,7 +48,7 @@ func RegisterVersion(c *gin.Context) {
 }
 
 func UpdateVersion(c *gin.Context) {
-	var req models.AppVersion
+	var req models.ApplicationVersion
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -56,4 +61,21 @@ func UpdateVersion(c *gin.Context) {
 	}
 
 	c.JSON(200, version)
+}
+
+func DownloadDesktopApp(c *gin.Context) {
+	target := c.Param("target")
+	arch := c.Param("arch")
+	version := c.Param("version")
+	filename := fmt.Sprintf("lembrago_%s_%s_en-US.msi", version, arch)
+
+	filePath := filepath.Join("releases", fmt.Sprintf("%s-%s", target, arch), filename)
+	fmt.Println(filePath)
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Version not found"})
+		return
+	}
+
+	c.FileAttachment(filePath, filename)
 }

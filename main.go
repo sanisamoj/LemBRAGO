@@ -108,14 +108,13 @@ func main() {
 	versions.Use(middlewares.NewRateLimiterMiddleware(time.Minute, 100))
 	{
 		versions.GET("", controllers.GetAllVersions)
+		versions.GET("/:target/:arch/:version", controllers.DownloadDesktopApp)
 		versions.GET("/latest", controllers.GetLatestAppVersion)
 		versions.POST("", middlewares.AuthMiddleware(appConfig.JWTSecretAdmin, adminOnly), controllers.RegisterVersion)
 		versions.PUT("", middlewares.AuthMiddleware(appConfig.JWTSecretAdmin, adminOnly), controllers.UpdateVersion)
 	}
 
 	router.DELETE("/signout", middlewares.AuthMiddleware(appConfig.JWTSecret, adminOrMember), controllers.Signout)
-
-	
 
 	host := appConfig.Host
 	port := appConfig.Port

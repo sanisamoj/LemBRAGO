@@ -33,7 +33,14 @@ func init() {
 		panic(err)
 	}
 
-	go IconPopulate()
+	if _, err := os.Stat("releases"); os.IsNotExist(err) {
+		_ = os.MkdirAll("releases, os.ModePerm", os.ModePerm)
+
+		_ = os.MkdirAll("releases/windows-x86_64", os.ModePerm)
+		_ = os.MkdirAll("releases/linux-x86_64", os.ModePerm)
+	}
+
+	// go IconPopulate()
 }
 
 func GetServerConfig() *ServerConfig {
@@ -48,4 +55,8 @@ func GetServerConfig() *ServerConfig {
 	}
 
 	return cfg
+}
+
+func GetServerVersion() string {
+	return "0.8.0"
 }

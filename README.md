@@ -32,6 +32,7 @@ REDIS_PASSWORD=senha
 
 JWT_SECRET=secret_key
 JWT_SECRET_USER_CREATION=secret_key_user_creation
+JWT_SECRET_ADMIN=secret_key
 JWT_ISSUER=LemBraGO
 
 EMAIL_AUTH_USER=
