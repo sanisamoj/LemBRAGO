@@ -63,6 +63,37 @@ func UpdateVersion(c *gin.Context) {
 	c.JSON(200, version)
 }
 
+func UploadDesktopApp(c *gin.Context) {
+	target := c.PostForm("target")  
+	arch := c.PostForm("arch")
+	version := c.PostForm("version")
+	lang := c.DefaultPostForm("lang", "en-US")
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Arquivo não enviado"})
+		return
+	}
+
+	dir := fmt.Sprintf("releases/%s-%s", target, arch)
+	err = os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar pasta"})
+		return
+	}
+
+	ext := filepath.Ext(file.Filename) // ex: .msi, .AppImage, .dmg
+	filename := fmt.Sprintf("lembrago_%s_%s_%s%s", version, arch, lang, ext)
+	filepath := filepath.Join(dir, filename)
+
+	if err := c.SaveUploadedFile(file, filepath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar arquivo"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Upload feito com sucesso", "path": filepath})
+}
+
 func DownloadDesktopApp(c *gin.Context) {
 	target := c.Param("target")
 	arch := c.Param("arch")

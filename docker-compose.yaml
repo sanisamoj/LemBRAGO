@@ -18,7 +18,7 @@ services:
     image: mongodb/mongodb-community-server:latest
     container_name: lembrago-mongodb
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/dbs
     environment:
@@ -31,7 +31,7 @@ services:
     image: redis
     container_name: lembrago-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command: redis-server --requirepass 97005209
     networks:
       - default_network
