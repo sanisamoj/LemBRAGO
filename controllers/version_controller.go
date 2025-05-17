@@ -98,6 +98,12 @@ func DownloadDesktopApp(c *gin.Context) {
 	target := c.Param("target")
 	arch := c.Param("arch")
 	version := c.Param("version")
+
+	if version == "latest" {
+		v, _ := services.GetLatestVersion()
+		version = v.LatestDesktopVersion.Version
+    }
+
 	filename := fmt.Sprintf("lembrago_%s_%s_en-US.msi", version, arch)
 
 	filePath := filepath.Join("releases", fmt.Sprintf("%s-%s", target, arch), filename)
