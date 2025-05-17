@@ -18,7 +18,7 @@ func GetLatestAppVersion(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, version)
+	c.JSON(200, version.LatestDesktopVersion)
 }
 
 func GetAllVersions(c *gin.Context) {
