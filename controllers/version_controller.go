@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"lembrago.com/lembrago/models"
 	"lembrago.com/lembrago/services"
+	"lembrago.com/lembrago/utils"
 )
 
 func GetLatestAppVersion(c *gin.Context) {
@@ -18,7 +19,7 @@ func GetLatestAppVersion(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, version.LatestDesktopVersion)
+	c.JSON(200, version)
 }
 
 func GetAllVersions(c *gin.Context) {
@@ -34,6 +35,12 @@ func GetAllVersions(c *gin.Context) {
 func RegisterVersion(c *gin.Context) {
 	var req models.ApplicationVersion
 	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -54,6 +61,12 @@ func UpdateVersion(c *gin.Context) {
 		return
 	}
 
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
 	version, err := services.UpdateVersion(&req)
 	if err != nil {
 		c.Error(err)
@@ -64,7 +77,7 @@ func UpdateVersion(c *gin.Context) {
 }
 
 func UploadDesktopApp(c *gin.Context) {
-	target := c.PostForm("target")  
+	target := c.PostForm("target")
 	arch := c.PostForm("arch")
 	version := c.PostForm("version")
 	lang := c.DefaultPostForm("lang", "en-US")
@@ -101,8 +114,8 @@ func DownloadDesktopApp(c *gin.Context) {
 
 	if version == "latest" {
 		v, _ := services.GetLatestVersion()
-		version = v.LatestDesktopVersion.Version
-    }
+		version = v.Version
+	}
 
 	filename := fmt.Sprintf("lembrago_%s_%s_en-US.msi", version, arch)
 
