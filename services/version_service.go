@@ -44,3 +44,14 @@ func GetAllVersions() ([]models.ApplicationVersion, error) {
 func UpdateVersion(req *models.ApplicationVersion) (*models.ApplicationVersion, error) {
 	return repository.UpdateAppVersion(req)
 }
+
+
+func RemoveVersionByID(ID string) error {
+	objID, err := primitive.ObjectIDFromHex(ID)
+	if err != nil {
+		return err
+	}
+
+	err = repository.RemoveAppVersion(objID)
+	return err
+}

@@ -76,6 +76,18 @@ func UpdateVersion(c *gin.Context) {
 	c.JSON(200, version)
 }
 
+func RemoveVersion(c *gin.Context) {
+	vID := c.Query("id")
+	err := services.RemoveVersionByID(vID)
+
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Versão removida com sucesso"})
+}
+
 func UploadDesktopApp(c *gin.Context) {
 	target := c.PostForm("target")
 	arch := c.PostForm("arch")

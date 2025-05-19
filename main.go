@@ -109,6 +109,7 @@ func main() {
 		versions.GET("/latest", controllers.GetLatestAppVersion)
 		versions.POST("", middlewares.AuthMiddleware(appConfig.JWTSecretAdmin, adminOnly), controllers.RegisterVersion)
 		versions.PUT("", middlewares.AuthMiddleware(appConfig.JWTSecretAdmin, adminOnly), controllers.UpdateVersion)
+		versions.DELETE("/:id", middlewares.AuthMiddleware(appConfig.JWTSecretAdmin, adminOnly), controllers.RegisterVersion)
 
 		versions.GET("/:target/:arch/:version", controllers.DownloadDesktopApp)
 		versions.POST("/desktop", middlewares.AuthMiddleware(appConfig.JWTSecretAdmin, adminOnly), controllers.UploadDesktopApp)

@@ -84,3 +84,13 @@ func UpdateAppVersion(version *models.ApplicationVersion) (*models.ApplicationVe
 
 	return version, nil
 }
+
+func RemoveAppVersion(ID primitive.ObjectID) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("appVersion")
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": ID})
+
+	return err 
+}
