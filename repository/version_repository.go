@@ -89,7 +89,7 @@ func RemoveAppVersion(ID primitive.ObjectID) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := database.GetCollection("appVersion")
+	collection := database.GetCollection("version")
 	_, err := collection.DeleteOne(ctx, bson.M{"_id": ID})
 
 	return err 

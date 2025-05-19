@@ -77,7 +77,7 @@ func UpdateVersion(c *gin.Context) {
 }
 
 func RemoveVersion(c *gin.Context) {
-	vID := c.Query("id")
+	vID := c.Param("id")
 	err := services.RemoveVersionByID(vID)
 
 	if err != nil {
