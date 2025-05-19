@@ -74,6 +74,7 @@ func UpdateAppVersion(version *models.ApplicationVersion) (*models.ApplicationVe
 		return nil, err
 	}
 
+	version.PubDate = existing.PubDate
 	version.CreatedAt = existing.CreatedAt
 
 	_, err = collection.UpdateOne(ctx, bson.M{"_id": version.ID}, bson.M{"$set": version})
