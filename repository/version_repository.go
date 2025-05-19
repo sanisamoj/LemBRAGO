@@ -68,7 +68,15 @@ func UpdateAppVersion(version *models.ApplicationVersion) (*models.ApplicationVe
 	defer cancel()
 
 	collection := database.GetCollection("version")
-	_, err := collection.UpdateOne(ctx, bson.M{"_id": version.ID}, bson.M{"$set": version})
+	var existing models.ApplicationVersion
+	err := collection.FindOne(ctx, bson.M{"_id": version.ID}).Decode(&existing)
+	if err != nil {
+		return nil, err
+	}
+
+	version.CreatedAt = existing.CreatedAt
+
+	_, err = collection.UpdateOne(ctx, bson.M{"_id": version.ID}, bson.M{"$set": version})
 	if err != nil {
 		return nil, err
 	}
