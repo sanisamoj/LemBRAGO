@@ -24,6 +24,8 @@ var allowedImageTypes = map[string]bool{
 	"image/jpeg": true,
 	"image/png":  true,
 	"image/gif":  true,
+	"image/webp": true,
+	"image/ico":  true,
 }
 
 func HandleUploadFile(c *gin.Context) {
