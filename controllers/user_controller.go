@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -113,7 +112,6 @@ func UserRegister(c *gin.Context) {
 	}
 
 	role, ok := roleRaw.(models.UserRole)
-	fmt.Println(role)
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (role type)"})
 		return
