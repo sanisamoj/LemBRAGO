@@ -101,6 +101,16 @@ func FindUsersByOrgID(orgID primitive.ObjectID) ([]models.User, error) {
 	return users, nil
 }
 
+func UpdateUserRole(id primitive.ObjectID, role string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := database.GetCollection("users")
+
+	_, err := collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"role": role}})
+	return err
+}
+
 func SaveMediaInRepo(svMedia *models.SavedMedia) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

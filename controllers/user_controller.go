@@ -151,6 +151,10 @@ func UserRegister(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
+func UpdateUserRole(c *gin.Context) {
+	
+}
+
 func DeleteUser(c *gin.Context) {
 	ownerID, exists := c.Get("userID")
 	if !exists {

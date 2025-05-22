@@ -258,6 +258,35 @@ func DeleteUser(userID, targetUserID string) error {
 	return nil
 }
 
+func UpdateUserRole(userID, targetUserID, userRole string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return errors.NewAppError(400, "Invalid userID format")
+	}
+
+	user, err := repository.FindUserByID(userObjID)
+	if err != nil {
+		return errors.NewAppError(403, "Forbidden")
+	}
+
+	if user.Role != models.RoleAdmin {
+		return errors.NewAppError(403, "Invalid permission")
+	}
+
+	tUserObjID, err := primitive.ObjectIDFromHex(targetUserID)
+	if err != nil {
+		return errors.NewAppError(400, "Invalid targetUserID format")
+	}
+
+	_, err = repository.FindUserByID(tUserObjID)
+	if err != nil {
+		return errors.NewAppError(404, "User not found")
+	}
+
+	err = repository.UpdateUserRole(tUserObjID, userRole)
+	return err
+}
+
 func GetUserByID(userID string) (*models.MinimalUserInfoResponse, error) {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {

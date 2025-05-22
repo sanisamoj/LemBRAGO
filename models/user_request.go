@@ -17,6 +17,11 @@ type CreateUserRequest struct {
 	MyVault *CreateVaultRequest `json:"myVault"` // `json:"myVault" validate:"required"`
 }
 
+type UpdateUserRole struct {
+	UserID string `json:"userId" validate:"required"`
+	Role   UserRole `json:"role" validate:"required,oneof=admin member"`
+}
+
 type UserResponse struct {
 	ID       string   `json:"id"`
 	Email    string   `json:"email"`

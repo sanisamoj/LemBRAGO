@@ -22,12 +22,13 @@ func CreateVault(userID string, req *models.CreateVaultRequest) (*models.VaultRe
 	if err != nil {
 		return nil, errors.NewAppError(404, "User not found")
 	}
-	if user.Role != models.RoleAdmin {
-		return nil, errors.NewAppError(403, "Only admin can create vault")
-	}
 
 	if req.PersonalVault != nil && *req.PersonalVault {
 		return CreatePersonalVault(userID, user.OrgID.Hex(), req)
+	}
+
+	if user.Role != models.RoleAdmin {
+		return nil, errors.NewAppError(403, "Only admin can create vault")
 	}
 
 	vaultID := primitive.NewObjectID()
@@ -268,25 +269,25 @@ func RemoveVault(userID, vaultID string) error {
 func removeVaultData(vaultID primitive.ObjectID) error {
 	members, err := repository.FindAllVaultMembersByVaultID(vaultID)
 	if err != nil {
-		return fmt.Errorf("Failed to find vault members: %v", err)
+		return fmt.Errorf("failed to find vault members: %v", err)
 	}
 
 	for _, member := range members {
 		err = repository.DeleteVaultMember(member.ID)
 		if err != nil {
-			return fmt.Errorf("Failed to remove vault member: %v", err)
+			return fmt.Errorf("failed to remove vault member: %v", err)
 		}
 	}
 
 	passwords, err := repository.FindAllPasswordsByVaultID(vaultID)
 	if err != nil {
-		return fmt.Errorf("Failed to find passwords: %v", err)
+		return fmt.Errorf("failed to find passwords: %v", err)
 	}
 
 	for _, password := range passwords {
 		err = repository.RemovePasswordFromVault(password.ID)
 		if err != nil {
-			return fmt.Errorf("Failed to remove password: %v", err)
+			return fmt.Errorf("failed to remove password: %v", err)
 		}
 	}
 
