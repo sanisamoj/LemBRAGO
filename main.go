@@ -55,6 +55,7 @@ func main() {
 	{
 		organization.GET("/users", controllers.GetUsers)
 		organization.DELETE("/users", controllers.DeleteUser)
+		organization.PUT("/users", controllers.UpdateUserRole)
 	}
 
 	invites := router.Group("/invites")
