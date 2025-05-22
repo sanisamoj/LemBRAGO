@@ -152,7 +152,36 @@ func UserRegister(c *gin.Context) {
 }
 
 func UpdateUserRole(c *gin.Context) {
-	
+	userIDRaw, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Erro interno (userID type)"})
+		return
+	}
+
+	var req models.UpdateUserRoleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return 
+	}
+
+	err := utils.GetValidator().Struct(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = services.UpdateUserRole(userID, req.UserID, string(req.Role))
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "User role updated"})
 }
 
 func DeleteUser(c *gin.Context) {
