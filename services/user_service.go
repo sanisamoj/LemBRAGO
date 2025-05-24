@@ -356,7 +356,7 @@ func SaveMedia(orgID string, filename string, header *multipart.FileHeader, size
 	dst := filepath.Join(uploadDir, filename)
 
 	if err := c.SaveUploadedFile(header, dst); err != nil {
-		return nil, fmt.Errorf("Failed to save file: %v", err)
+		return nil, fmt.Errorf("failed to save file: %v", err)
 	}
 
 	selfUrl := config.GetServerConfig().SELF_URL
@@ -364,7 +364,7 @@ func SaveMedia(orgID string, filename string, header *multipart.FileHeader, size
 
 	orgObjID, err := primitive.ObjectIDFromHex(orgID)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid (orgID): %v", err)
+		return nil, fmt.Errorf("invalid (orgID): %v", err)
 	}
 
 	saveMedia := models.SavedMedia{
