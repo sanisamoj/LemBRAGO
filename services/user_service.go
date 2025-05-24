@@ -393,6 +393,10 @@ func GetAllMediaFromTheOrg(orgID string) ([]models.SavedMedia, error) {
 		return nil, err
 	}
 
+	if len(medias) == 0 {
+		return make([]models.SavedMedia, 0), nil
+	}
+
 	return medias, nil
 }
 
