@@ -171,6 +171,11 @@ func GetAllMediasFromTheOrg(c *gin.Context) {
 		c.Error(err)
 		return
 	}
+	
+	if medias == nil {
+		c.JSON(200, []models.SavedMedia{})
+		return
+	}
 
 	c.JSON(200, medias)
 }
