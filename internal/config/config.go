@@ -16,6 +16,7 @@ type ServerConfig struct {
 	Host                  string
 	Port                  string
 	SELF_URL              string
+	SELF_PAGE_URL         string
 }
 
 func init() {
@@ -52,6 +53,7 @@ func GetServerConfig() *ServerConfig {
 		Host:                  os.Getenv("HOST"),
 		Port:                  os.Getenv("PORT"),
 		SELF_URL:              os.Getenv("SELF_URL"),
+		SELF_PAGE_URL:         os.Getenv("SELF_PAGE"),
 	}
 
 	return cfg

@@ -68,7 +68,7 @@ func convWelcomeEmail(username string) (string, error) {
 		return "", err
 	}
 
-	lUrl := config.GetServerConfig().SELF_URL
+	lUrl := config.GetServerConfig().SELF_PAGE_URL
 	lFaqUrl := fmt.Sprintf("%s/faq", lUrl)
 
 	htmlTemplate := string(templateBytes)
@@ -101,7 +101,7 @@ func convInviteEmail(env, role, code string) (string, error) {
 		return "", err
 	}
 
-	lUrl := config.GetServerConfig().SELF_URL
+	lUrl := config.GetServerConfig().SELF_PAGE_URL
 	lFaqUrl := fmt.Sprintf("%s/faq", lUrl)
 
 	htmlTemplate := string(templateBytes)
@@ -136,7 +136,7 @@ func convAuthCodeEmail(code string) (string, error) {
 		return "", err
 	}
 
-	lUrl := config.GetServerConfig().SELF_URL
+	lUrl := config.GetServerConfig().SELF_PAGE_URL
 	lFaqUrl := fmt.Sprintf("%s/faq", lUrl)
 
 	htmlTemplate := string(templateBytes)

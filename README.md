@@ -65,6 +65,7 @@ LemBRAGO é uma aplicação backend projetada para oferecer uma maneira segura e
 HOST=0.0.0.0
 PORT=7888
 SELF_URL=
+SELF_PAGE=
 
 MONGO_HOST=host.docker.internal
 MONGO_PORT=27017
