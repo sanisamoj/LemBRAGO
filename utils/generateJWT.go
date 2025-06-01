@@ -19,7 +19,7 @@ type CustomClaims struct {
 
 func GenerateJWT(userID, orgID string, role models.UserRole) (string, error) {
 	appConfig := config.GetServerConfig()
-	expirationTime := time.Now().Add(29 * time.Hour)
+	expirationTime := time.Now().Add(2160 * time.Hour)
 	claims := &CustomClaims{
 		UserID: userID,
 		OrgID:  orgID,
@@ -34,7 +34,7 @@ func GenerateJWT(userID, orgID string, role models.UserRole) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString(appConfig.JWTSecret)
 	if err != nil {
-		return "", fmt.Errorf("Error ao assinar o Token")
+		return "", fmt.Errorf("erro ao assinar o Token")
 	}
 
 	return tokenStr, nil
@@ -58,7 +58,7 @@ func GenerateJWTUserCreation(userID, orgID string, role models.UserRole, email s
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString(appConfig.JWTSecretUserCreation)
 	if err != nil {
-		return "", fmt.Errorf("Error ao assinar o Token")
+		return "", fmt.Errorf("erro ao assinar o Token")
 	}
 
 	return tokenStr, nil
