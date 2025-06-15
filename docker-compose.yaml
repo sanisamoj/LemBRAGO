@@ -24,7 +24,7 @@ services:
       - mongo-data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: jomasinas
-      MONGO_INITDB_ROOT_PASSWORD: 97005209
+      MONGO_INITDB_ROOT_PASSWORD: senha
     networks:
       - default_network
 
@@ -33,7 +33,7 @@ services:
     container_name: lembrago-redis
     ports:
       - "6379:6379"
-    command: redis-server --requirepass 97005209
+    command: redis-server --requirepass senha
     networks:
       - default_network
 
